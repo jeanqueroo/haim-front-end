@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+import 'features/auth/pages/login_page.dart';
 import 'register_store_page.dart';
 import 'select_store_page.dart';
+import 'dashboard_page.dart';
 
 class HomeMenu extends StatefulWidget {
   const HomeMenu({super.key});
@@ -14,7 +15,7 @@ class _HomeMenuState extends State<HomeMenu> {
   int _selectedIndex = 0;
 
   static const List<Widget> _pages = <Widget>[
-    _DashboardPage(),
+    DashboardPage(),
     _ProfilePage(),
     _SettingsPage(),
     _RegisterStorePage(),
@@ -158,17 +159,6 @@ class _HomeMenuState extends State<HomeMenu> {
           NavigationDestination(icon: Icon(Icons.add_shopping_cart), label: 'Producto'),
         ],
       ),
-    );
-  }
-}
-
-class _DashboardPage extends StatelessWidget {
-  const _DashboardPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Bienvenido al dashboard'),
     );
   }
 }

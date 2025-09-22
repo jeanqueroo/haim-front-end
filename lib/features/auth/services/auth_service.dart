@@ -6,6 +6,36 @@ class AuthService {
   final _storage = const FlutterSecureStorage();
   final String baseUrl = "http://10.0.2.2:3000";
 
+  Future<bool> registerUser({
+    required String firstName,
+    required String lastName,
+    required String address,
+    required String country,
+    required int age,
+    required String gender,
+    required List<String> roles,
+    required String email,
+    required String password,
+  }) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/users"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "nombre": firstName,
+        "apellidos": lastName,
+        "direccion": address,
+        "pais": country,
+        "edad": age,
+        "sexo": gender,
+        "roles": roles,
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    return response.statusCode == 201 || response.statusCode == 200;
+  }
+
   Future<bool> signup(String email, String password) async {
     final response = await http.post(
       Uri.parse("$baseUrl/auth/signup"),
