@@ -7,17 +7,24 @@ class AuthProvider with ChangeNotifier {
   final _userService = UserService();
   bool _isAuthenticated = false;
   String? _lastError;
+  Map<String, dynamic>? _currentUser;
 
   bool get isAuthenticated => _isAuthenticated;
   String? get lastError => _lastError;
+  Map<String, dynamic>? get currentUser => _currentUser;
 
   Future<bool> login(String email, String password) async {
     _lastError = null;
     final success = await _authService.login(email, password);
     _isAuthenticated = success;
-    if (!success) {
-      _lastError = 'Credenciales inválidas';
+    
+    if (success) {
+      // Cargar datos del usuario después del login exitoso
+      await _loadCurrentUser();
+    } else {
+      _lastError = 'Invalid credentials';
     }
+    
     notifyListeners();
     return success;
   }
@@ -107,6 +114,7 @@ class AuthProvider with ChangeNotifier {
     await _authService.logout();
     _isAuthenticated = false;
     _lastError = null;
+    _currentUser = null;
     notifyListeners();
   }
 
@@ -124,6 +132,71 @@ class AuthProvider with ChangeNotifier {
   /// Limpia el último error
   void clearError() {
     _lastError = null;
+    notifyListeners();
+  }
+
+  /// Carga los datos del usuario actual desde el storage
+  Future<void> _loadCurrentUser() async {
+    try {
+      _currentUser = await _authService.getUserData();
+    } catch (e) {
+      _currentUser = null;
+    }
+  }
+
+  /// Inicializa el estado de autenticación al arrancar la app
+  Future<void> initializeAuth() async {
+    final isLoggedIn = await _authService.isUserLoggedIn();
+    _isAuthenticated = isLoggedIn;
+    
+    if (isLoggedIn) {
+      await _loadCurrentUser();
+    }
+    
+    notifyListeners();
+  }
+
+  /// Obtiene el nombre completo del usuario actual
+  String? get userFullName {
+    if (_currentUser == null) return null;
+    final name = _currentUser!["nombre"] ?? "";
+    final lastname = _currentUser!["apellidos"] ?? "";
+    return "$name $lastname".trim();
+  }
+
+  /// Obtiene el email del usuario actual
+  String? get userEmail {
+    return _currentUser?["email"];
+  }
+
+  /// Obtiene los roles del usuario actual
+  List<String> get userRoles {
+    if (_currentUser == null) return [];
+    final roles = _currentUser!["roles"];
+    if (roles is List) {
+      return roles.cast<String>();
+    }
+    return [];
+  }
+
+  /// Verifica si el usuario tiene un rol específico
+  bool hasRole(String role) {
+    return userRoles.contains(role);
+  }
+
+  /// Verifica si el usuario es administrador
+  bool get isAdmin {
+    return hasRole('admin');
+  }
+
+  /// Verifica si el usuario es vendedor
+  bool get isVendedor {
+    return hasRole('vendedor');
+  }
+
+  /// Actualiza los datos del usuario actual
+  Future<void> updateCurrentUser() async {
+    await _loadCurrentUser();
     notifyListeners();
   }
 }

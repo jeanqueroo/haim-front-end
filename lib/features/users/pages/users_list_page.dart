@@ -66,8 +66,8 @@ class _UsersListPageState extends State<UsersListPage> {
     setState(() {
       _filteredUsers = _users.where((user) {
         final matchesSearch = _searchQuery.isEmpty ||
-            user.nombre.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            user.apellidos.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            user.firstName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            user.lastName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
             user.email.toLowerCase().contains(_searchQuery.toLowerCase());
         
         final matchesRole = _selectedRole == 'all' ||
@@ -277,7 +277,7 @@ class _UsersListPageState extends State<UsersListPage> {
                 CircleAvatar(
                   backgroundColor: Theme.of(context).primaryColor,
                   child: Text(
-                    user.nombre.isNotEmpty ? user.nombre[0].toUpperCase() : 'U',
+                    user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : 'U',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -290,7 +290,7 @@ class _UsersListPageState extends State<UsersListPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${user.nombre} ${user.apellidos}',
+                        '${user.firstName} ${user.lastName}',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -335,7 +335,7 @@ class _UsersListPageState extends State<UsersListPage> {
                 Expanded(
                   child: _buildInfoChip(
                     Icons.location_on,
-                    user.direccion,
+                    user.address,
                     l10n.address,
                   ),
                 ),
@@ -343,7 +343,7 @@ class _UsersListPageState extends State<UsersListPage> {
                 Expanded(
                   child: _buildInfoChip(
                     Icons.flag,
-                    user.pais,
+                    user.country,
                     l10n.country,
                   ),
                 ),
@@ -357,15 +357,15 @@ class _UsersListPageState extends State<UsersListPage> {
                 Expanded(
                   child: _buildInfoChip(
                     Icons.cake,
-                    '${user.edad} ${l10n.years}',
+                    '${user.age} ${l10n.years}',
                     l10n.age,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildInfoChip(
-                    user.sexo == 'M' ? Icons.male : user.sexo == 'F' ? Icons.female : Icons.person,
-                    user.sexo == 'M' ? l10n.male : user.sexo == 'F' ? l10n.female : l10n.other,
+                    user.gender == 'M' ? Icons.male : user.gender == 'F' ? Icons.female : Icons.person,
+                    user.gender == 'M' ? l10n.male : user.gender == 'F' ? l10n.female : l10n.other,
                     l10n.gender,
                   ),
                 ),
@@ -448,19 +448,19 @@ class _UsersListPageState extends State<UsersListPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${user.nombre} ${user.apellidos}'),
+        title: Text('${user.firstName} ${user.lastName}'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildDetailRow(l10n.email, user.email),
-              _buildDetailRow(l10n.address, user.direccion),
-              _buildDetailRow(l10n.country, user.pais),
-              _buildDetailRow(l10n.age, '${user.edad} ${l10n.years}'),
+              _buildDetailRow(l10n.address, user.address),
+              _buildDetailRow(l10n.country, user.country),
+              _buildDetailRow(l10n.age, '${user.age} ${l10n.years}'),
               _buildDetailRow(
                 l10n.gender,
-                user.sexo == 'M' ? l10n.male : user.sexo == 'F' ? l10n.female : l10n.other,
+                user.gender == 'M' ? l10n.male : user.gender == 'F' ? l10n.female : l10n.other,
               ),
               _buildDetailRow(l10n.roles, user.roles.join(', ')),
               if (user.createdAt != null)

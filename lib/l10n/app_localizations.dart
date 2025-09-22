@@ -53,7 +53,6 @@ class AppLocalizations {
   'getStarted': 'Comenzar',
   'loginToAccess': 'Inicia sesión para acceder a todas las funciones',
   'dashboard': 'Panel de Control',
-    'logout': 'Cerrar Sesión',
     'loginSuccess': 'Inicio de sesión exitoso',
     'loginError': 'Error al iniciar sesión',
     'invalidCredentials': 'Credenciales inválidas',
@@ -62,14 +61,12 @@ class AppLocalizations {
     'connectionError': 'Error de conexión',
     'serverError': 'Error del servidor',
     'tryAgain': 'Intentar de nuevo',
-    'cancel': 'Cancelar',
     'save': 'Guardar',
     'edit': 'Editar',
     'delete': 'Eliminar',
   'confirm': 'Confirmar',
   'yes': 'Sí',
   'no': 'No',
-  'settings': 'Configuración',
   'selectLanguageDescription': 'Selecciona el idioma que prefieras para la aplicación',
   'information': 'Información',
   'currentLanguage': 'Idioma actual:',
@@ -80,9 +77,7 @@ class AppLocalizations {
   'createNewUser': 'Crear nuevo usuario',
   'viewUsers': 'Ver Usuarios',
   'manageUsers': 'Gestionar usuarios',
-  'registerStore': 'Registrar Tienda',
   'addNewStore': 'Añadir nueva tienda',
-  'registerProduct': 'Registrar Producto',
   'addProducts': 'Añadir productos',
   'viewStores': 'Ver Tiendas',
   'manageStores': 'Gestionar tiendas',
@@ -109,6 +104,21 @@ class AppLocalizations {
   'registerStoreDescription': 'El registro de tiendas estará disponible pronto',
   'productsFeatureDescription': 'La gestión de productos estará disponible pronto',
   'registerProductDescription': 'El registro de productos estará disponible pronto',
+  'profile': 'Perfil',
+  'personalInformation': 'Información Personal',
+  'accountInformation': 'Información de Cuenta',
+  'userId': 'ID de Usuario',
+  'accountActions': 'Acciones de Cuenta',
+  'logoutConfirmation': '¿Estás seguro de que quieres cerrar sesión?',
+  'changeLanguageInSettings': 'Cambia el idioma en Configuración',
+  'home': 'Inicio',
+  'settings': 'Ajustes',
+  'selectStore': 'Seleccionar Tienda',
+  'sessionClosed': 'Sesión cerrada correctamente',
+  'darkMode': 'Modo oscuro (demo)',
+  'version': 'Versión',
+  'store': 'Tienda',
+  'product': 'Producto',
   };
 
   // Textos en inglés
@@ -153,7 +163,6 @@ class AppLocalizations {
   'getStarted': 'Get Started',
   'loginToAccess': 'Login to access all features',
   'dashboard': 'Dashboard',
-    'logout': 'Logout',
     'loginSuccess': 'Login successful',
     'loginError': 'Login error',
     'invalidCredentials': 'Invalid credentials',
@@ -162,14 +171,12 @@ class AppLocalizations {
     'connectionError': 'Connection error',
     'serverError': 'Server error',
     'tryAgain': 'Try again',
-    'cancel': 'Cancel',
     'save': 'Save',
     'edit': 'Edit',
     'delete': 'Delete',
   'confirm': 'Confirm',
   'yes': 'Yes',
   'no': 'No',
-  'settings': 'Settings',
   'selectLanguageDescription': 'Select your preferred language for the application',
   'information': 'Information',
   'currentLanguage': 'Current language:',
@@ -180,9 +187,7 @@ class AppLocalizations {
   'createNewUser': 'Create new user',
   'viewUsers': 'View Users',
   'manageUsers': 'Manage users',
-  'registerStore': 'Register Store',
   'addNewStore': 'Add new store',
-  'registerProduct': 'Register Product',
   'addProducts': 'Add products',
   'viewStores': 'View Stores',
   'manageStores': 'Manage stores',
@@ -209,6 +214,21 @@ class AppLocalizations {
   'registerStoreDescription': 'Store registration will be available soon',
   'productsFeatureDescription': 'Product management will be available soon',
   'registerProductDescription': 'Product registration will be available soon',
+  'profile': 'Profile',
+  'personalInformation': 'Personal Information',
+  'accountInformation': 'Account Information',
+  'userId': 'User ID',
+  'accountActions': 'Account Actions',
+  'logoutConfirmation': 'Are you sure you want to logout?',
+  'changeLanguageInSettings': 'Change language in Settings',
+  'home': 'Home',
+  'settings': 'Settings',
+  'selectStore': 'Select Store',
+  'sessionClosed': 'Session closed successfully',
+  'darkMode': 'Dark mode (demo)',
+  'version': 'Version',
+  'store': 'Store',
+  'product': 'Product',
   };
 
   String _getText(String key) {
@@ -313,6 +333,20 @@ class AppLocalizations {
   String get registerStoreDescription => _getText('registerStoreDescription');
   String get productsFeatureDescription => _getText('productsFeatureDescription');
   String get registerProductDescription => _getText('registerProductDescription');
+  String get profile => _getText('profile');
+  String get personalInformation => _getText('personalInformation');
+  String get accountInformation => _getText('accountInformation');
+  String get userId => _getText('userId');
+  String get accountActions => _getText('accountActions');
+  String get logoutConfirmation => _getText('logoutConfirmation');
+  String get changeLanguageInSettings => _getText('changeLanguageInSettings');
+  String get home => _getText('home');
+  String get selectStore => _getText('selectStore');
+  String get sessionClosed => _getText('sessionClosed');
+  String get darkMode => _getText('darkMode');
+  String get version => _getText('version');
+  String get store => _getText('store');
+  String get product => _getText('product');
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

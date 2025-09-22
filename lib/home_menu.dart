@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'features/auth/pages/login_page.dart';
+import 'features/auth/providers/auth_provider.dart';
+import 'features/settings/pages/settings_page.dart';
 import 'register_store_page.dart';
 import 'select_store_page.dart';
 import 'dashboard_page.dart';
+import 'features/auth/pages/profile_page.dart';
+import 'l10n/app_localizations.dart';
 
 class HomeMenu extends StatefulWidget {
   const HomeMenu({super.key});
@@ -16,8 +21,8 @@ class _HomeMenuState extends State<HomeMenu> {
 
   static const List<Widget> _pages = <Widget>[
     DashboardPage(),
-    _ProfilePage(),
-    _SettingsPage(),
+    ProfilePage(),
+    SettingsPage(),
     _RegisterStorePage(),
     _SelectStorePage(),
   ];
@@ -29,20 +34,23 @@ class _HomeMenuState extends State<HomeMenu> {
   }
 
   Future<void> _handleLogout() async {
+    final l10n = AppLocalizations.of(context);
+    final authProvider = context.read<AuthProvider>();
+    
     final bool? shouldLogout = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Cerrar sesión'),
-          content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+          title: Text(l10n.logout),
+          content: Text(l10n.logoutConfirmation),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Cerrar sesión'),
+              child: Text(l10n.logout),
             ),
           ],
         );
@@ -53,6 +61,9 @@ class _HomeMenuState extends State<HomeMenu> {
       // Cerrar el drawer primero
       Navigator.of(context).pop();
       
+      // Cerrar sesión usando el AuthProvider
+      authProvider.logout();
+      
       // Navegar de vuelta a la página de login
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
@@ -62,9 +73,9 @@ class _HomeMenuState extends State<HomeMenu> {
       
       // Mostrar mensaje de confirmación
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sesión cerrada correctamente'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.sessionClosed),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -72,15 +83,18 @@ class _HomeMenuState extends State<HomeMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final authProvider = context.watch<AuthProvider>();
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(
           switch (_selectedIndex) {
-            0 => 'Inicio',
-            1 => 'Perfil',
-            2 => 'Ajustes',
-            3 => 'Registrar Tienda',
-            _ => 'Seleccionar Tienda',
+            0 => l10n.home,
+            1 => l10n.profile,
+            2 => l10n.settings,
+            3 => l10n.registerStore,
+            _ => l10n.selectStore,
           },
         ),
       ),
@@ -88,14 +102,22 @@ class _HomeMenuState extends State<HomeMenu> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const UserAccountsDrawerHeader(
-              accountName: Text('Usuario Demo'),
-              accountEmail: Text('demo@demo.com'),
-              currentAccountPicture: CircleAvatar(child: Icon(Icons.person)),
+            UserAccountsDrawerHeader(
+              accountName: Text(authProvider.userFullName ?? l10n.user),
+              accountEmail: Text(authProvider.userEmail ?? ''),
+              currentAccountPicture: CircleAvatar(
+                child: Text(
+                  _getInitials(authProvider.userFullName ?? 'U'),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.dashboard_outlined),
-              title: const Text('Inicio'),
+              title: Text(l10n.home),
               selected: _selectedIndex == 0,
               onTap: () {
                 Navigator.pop(context);
@@ -104,7 +126,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.person_outline),
-              title: const Text('Perfil'),
+              title: Text(l10n.profile),
               selected: _selectedIndex == 1,
               onTap: () {
                 Navigator.pop(context);
@@ -113,7 +135,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
-              title: const Text('Ajustes'),
+              title: Text(l10n.settings),
               selected: _selectedIndex == 2,
               onTap: () {
                 Navigator.pop(context);
@@ -122,7 +144,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.add_business),
-              title: const Text('Registrar Tienda'),
+              title: Text(l10n.registerStore),
               selected: _selectedIndex == 3,
               onTap: () {
                 Navigator.pop(context);
@@ -131,7 +153,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.add_shopping_cart),
-              title: const Text('Registrar Producto'),
+              title: Text(l10n.registerProduct),
               selected: _selectedIndex == 4,
               onTap: () {
                 Navigator.pop(context);
@@ -141,7 +163,7 @@ class _HomeMenuState extends State<HomeMenu> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Cerrar sesión'),
+              title: Text(l10n.logout),
               onTap: _handleLogout,
             ),
           ],
@@ -151,38 +173,36 @@ class _HomeMenuState extends State<HomeMenu> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onNavTap,
-        destinations: const <NavigationDestination>[
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Inicio'),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: 'Perfil'),
-          NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'Ajustes'),
-          NavigationDestination(icon: Icon(Icons.add_business), label: 'Tienda'),
-          NavigationDestination(icon: Icon(Icons.add_shopping_cart), label: 'Producto'),
+        destinations: <NavigationDestination>[
+          NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: l10n.home),
+          NavigationDestination(icon: const Icon(Icons.person_outline), label: l10n.profile),
+          NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n.settings),
+          NavigationDestination(icon: const Icon(Icons.add_business), label: l10n.store),
+          NavigationDestination(icon: const Icon(Icons.add_shopping_cart), label: l10n.product),
         ],
       ),
     );
   }
-}
 
-class _ProfilePage extends StatelessWidget {
-  const _ProfilePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: const <Widget>[
-        ListTile(leading: Icon(Icons.person), title: Text('Nombre'), subtitle: Text('Usuario Demo')),
-        ListTile(leading: Icon(Icons.email), title: Text('Email'), subtitle: Text('demo@demo.com')),
-      ],
-    );
+  String _getInitials(String name) {
+    if (name.isEmpty) return 'U';
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) {
+      return parts[0][0].toUpperCase();
+    }
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 }
+
+
 
 class _SettingsPage extends StatelessWidget {
   const _SettingsPage();
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
     return ListView(
       padding: const EdgeInsets.all(16),
       children: <Widget>[
@@ -190,12 +210,12 @@ class _SettingsPage extends StatelessWidget {
           value: Theme.of(context).brightness == Brightness.dark,
           onChanged: (_) {},
           secondary: const Icon(Icons.dark_mode_outlined),
-          title: const Text('Modo oscuro (demo)'),
+          title: Text(l10n.darkMode),
         ),
-        const ListTile(
-          leading: Icon(Icons.info_outline),
-          title: Text('Versión'),
-          subtitle: Text('1.0.0'),
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: Text(l10n.version),
+          subtitle: const Text('1.0.0'),
         ),
       ],
     );

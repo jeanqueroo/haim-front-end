@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'features/users/pages/register_user_page.dart';
 import 'features/settings/pages/settings_page.dart';
 import 'features/users/pages/users_list_page.dart';
 import 'features/stores/pages/register_store_page.dart';
 import 'features/products/pages/register_product_page.dart';
 import 'features/stores/pages/stores_list_page.dart';
+import 'features/auth/pages/profile_page.dart';
+import 'features/auth/providers/auth_provider.dart';
 import 'l10n/app_localizations.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -13,11 +16,23 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final authProvider = context.watch<AuthProvider>();
     
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.dashboard),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => const ProfilePage(),
+                ),
+              );
+            },
+            tooltip: l10n.profile,
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -51,22 +66,109 @@ class DashboardPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${l10n.hello} 👋',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${l10n.hello} ${authProvider.userFullName ?? 'User'} 👋',
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.welcomeToDashboard,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            if (authProvider.userEmail != null) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                authProvider.userEmail!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white60,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      // Avatar del usuario
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) => const ProfilePage(),
+                            ),
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            _getInitials(authProvider.userFullName ?? 'U'),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.welcomeToDashboard,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
+                  // Roles del usuario
+                  if (authProvider.userRoles.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      children: authProvider.userRoles.map((role) {
+                        String roleText;
+                        Color roleColor;
+                        switch (role) {
+                          case 'admin':
+                            roleText = l10n.admin;
+                            roleColor = Colors.red;
+                            break;
+                          case 'vendedor':
+                            roleText = l10n.vendedor;
+                            roleColor = Colors.blue;
+                            break;
+                          case 'user':
+                            roleText = l10n.user;
+                            roleColor = Colors.green;
+                            break;
+                          default:
+                            roleText = role;
+                            roleColor = Colors.grey;
+                        }
+                        
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: roleColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            roleText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -314,6 +416,15 @@ class DashboardPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return 'U';
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) {
+      return parts[0][0].toUpperCase();
+    }
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 }
 

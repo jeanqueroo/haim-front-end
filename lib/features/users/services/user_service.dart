@@ -62,13 +62,13 @@ class UserService {
 
       // Preparar datos para enviar
       final userData = {
-        "name": firstName.trim(),
-        "last_name": lastName.trim(),
+        "firstName": firstName.trim(),
+        "lastName": lastName.trim(),
         "address": address.trim(),
         "country": country.trim(),
         "age": age,
         "gender": gender,
-        "role": roles,
+        "roles": roles,
         "email": email.trim().toLowerCase(),
         "password": password,
       };
@@ -300,25 +300,25 @@ class UserRegistrationResult {
 /// Clase para representar la información de un usuario
 class UserInfo {
   final String id;
-  final String nombre;
-  final String apellidos;
+  final String firstName;
+  final String lastName;
   final String email;
-  final String direccion;
-  final String pais;
-  final int edad;
-  final String sexo;
+  final String address;
+  final String country;
+  final int age;
+  final String gender;
   final List<String> roles;
   final DateTime? createdAt;
 
   UserInfo({
     required this.id,
-    required this.nombre,
-    required this.apellidos,
+    required this.firstName,
+    required this.lastName,
     required this.email,
-    required this.direccion,
-    required this.pais,
-    required this.edad,
-    required this.sexo,
+    required this.address,
+    required this.country,
+    required this.age,
+    required this.gender,
     required this.roles,
     this.createdAt,
   });
@@ -326,13 +326,13 @@ class UserInfo {
   factory UserInfo.fromJson(Map<String, dynamic> json) {
     return UserInfo(
       id: json['id']?.toString() ?? '',
-      nombre: json['nombre'] ?? '',
-      apellidos: json['apellidos'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
       email: json['email'] ?? '',
-      direccion: json['direccion'] ?? '',
-      pais: json['pais'] ?? '',
-      edad: json['edad'] ?? 0,
-      sexo: json['sexo'] ?? '',
+      address: json['address'] ?? '',
+      country: json['country'] ?? '',
+      age: json['age'] ?? 0,
+      gender: json['gender'] ?? '',
       roles: List<String>.from(json['roles'] ?? []),
       createdAt: json['createdAt'] != null 
           ? DateTime.tryParse(json['createdAt']) 
@@ -343,13 +343,13 @@ class UserInfo {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'nombre': nombre,
-      'apellidos': apellidos,
+      'firstName': firstName,
+      'lastName': lastName,
       'email': email,
-      'direccion': direccion,
-      'pais': pais,
-      'edad': edad,
-      'sexo': sexo,
+      'address': address,
+      'country': country,
+      'age': age,
+      'gender': gender,
       'roles': roles,
       'createdAt': createdAt?.toIso8601String(),
     };
