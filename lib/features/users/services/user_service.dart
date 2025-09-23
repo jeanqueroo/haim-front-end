@@ -1,8 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../auth/services/auth_service.dart';
 
 class UserService {
   final String baseUrl = "http://10.0.2.2:3000";
+  final AuthService _authService = AuthService();
+
+  /// Obtiene los headers de autenticación con el token
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await _authService.getAccessToken();
+    return {
+      "Content-Type": "application/json",
+      if (token != null) "Authorization": "Bearer $token",
+    };
+  }
 
   /// Registra un nuevo usuario en el sistema
   /// 
@@ -56,7 +67,7 @@ class UserService {
       }
 
       // Validar género
-      if (!['M', 'F', 'Otro'].contains(gender)) {
+      if (!['M', 'F'].contains(gender)) {
         return UserRegistrationResult.error('El género seleccionado no es válido');
       }
 
@@ -77,10 +88,7 @@ class UserService {
       // Realizar petición HTTP
       final response = await http.post(
         Uri.parse("$baseUrl/users"),
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
+        headers: await _getAuthHeaders(),
         body: jsonEncode(userData),
       ).timeout(
         const Duration(seconds: 30),
@@ -158,7 +166,7 @@ class UserService {
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/users/check-email?email=${Uri.encodeComponent(email)}"),
-        headers: {"Accept": "application/json"},
+        headers: await _getAuthHeaders(),
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -176,7 +184,7 @@ class UserService {
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/users/$userId"),
-        headers: {"Accept": "application/json"},
+        headers: await _getAuthHeaders(),
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -194,7 +202,7 @@ class UserService {
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/users"),
-        headers: {"Accept": "application/json"},
+        headers: await _getAuthHeaders(),
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
@@ -218,7 +226,7 @@ class UserService {
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/users/search?q=${Uri.encodeComponent(query)}"),
-        headers: {"Accept": "application/json"},
+        headers: await _getAuthHeaders(),
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -242,7 +250,7 @@ class UserService {
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/users?role=${Uri.encodeComponent(role)}"),
-        headers: {"Accept": "application/json"},
+        headers: await _getAuthHeaders(),
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -258,6 +266,76 @@ class UserService {
       return [];
     } catch (e) {
       return [];
+    }
+  }
+
+  /// Actualiza un usuario existente
+  Future<UserRegistrationResult> updateUser({
+    required String userId,
+    required String firstName,
+    required String lastName,
+    required String address,
+    required String country,
+    required int age,
+    required String gender,
+    required List<String> roles,
+    required String email,
+  }) async {
+    try {
+      // Validaciones básicas
+      if (firstName.trim().isEmpty) {
+        return UserRegistrationResult.error('El nombre es obligatorio');
+      }
+      if (lastName.trim().isEmpty) {
+        return UserRegistrationResult.error('Los apellidos son obligatorios');
+      }
+      if (email.trim().isEmpty) {
+        return UserRegistrationResult.error('El email es obligatorio');
+      }
+      if (age <= 0) {
+        return UserRegistrationResult.error('La edad debe ser mayor a 0');
+      }
+      if (roles.isEmpty) {
+        return UserRegistrationResult.error('Debe seleccionar al menos un rol');
+      }
+
+      // Validar formato de email
+      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegex.hasMatch(email)) {
+        return UserRegistrationResult.error('El formato del email no es válido');
+      }
+
+      // Preparar datos para enviar
+      final userData = {
+        "firstName": firstName.trim(),
+        "lastName": lastName.trim(),
+        "address": address.trim(),
+        "country": country.trim(),
+        "age": age,
+        "gender": gender,
+        "roles": roles,
+        "email": email.trim().toLowerCase(),
+      };
+
+      final response = await http.put(
+        Uri.parse("$baseUrl/users/$userId"),
+        headers: await _getAuthHeaders(),
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return UserRegistrationResult.success(message: 'Usuario actualizado exitosamente');
+      } else {
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['message'] ?? 'Error al actualizar usuario';
+        return UserRegistrationResult.error(errorMessage);
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') || 
+          e.toString().contains('HandshakeException')) {
+        return UserRegistrationResult.error('Error de conexión. Verifica tu conexión a internet');
+      }
+      return UserRegistrationResult.error('Error inesperado: ${e.toString()}');
     }
   }
 }

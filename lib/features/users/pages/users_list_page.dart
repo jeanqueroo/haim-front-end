@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/user_service.dart';
 import 'register_user_page.dart';
+import 'edit_user_page.dart';
 import '../../../l10n/app_localizations.dart';
 
 class UsersListPage extends StatefulWidget {
@@ -306,9 +307,10 @@ class _UsersListPageState extends State<UsersListPage> {
                 ),
                 PopupMenuButton<String>(
                   onSelected: (value) {
-                    // Aquí puedes agregar acciones como editar, eliminar, etc.
                     if (value == 'view') {
                       _showUserDetails(user, l10n);
+                    } else if (value == 'edit') {
+                      _editUser(user, l10n);
                     }
                   },
                   itemBuilder: (context) => [
@@ -319,6 +321,16 @@ class _UsersListPageState extends State<UsersListPage> {
                           const Icon(Icons.visibility),
                           const SizedBox(width: 8),
                           Text(l10n.viewDetails),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.edit),
+                          const SizedBox(width: 8),
+                          Text(l10n.edit),
                         ],
                       ),
                     ),
@@ -501,5 +513,24 @@ class _UsersListPageState extends State<UsersListPage> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Future<void> _editUser(UserInfo user, AppLocalizations l10n) async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (context) => EditUserPage(user: user),
+      ),
+    );
+
+    if (result == true) {
+      // Recargar la lista de usuarios si la edición fue exitosa
+      _loadUsers();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.userUpdatedSuccessfully),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 }

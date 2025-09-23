@@ -193,34 +193,37 @@ class DashboardPage extends StatelessWidget {
               mainAxisSpacing: 16,
               childAspectRatio: 1.2,
               children: [
-                _buildActionCard(
-                  context,
-                  icon: Icons.person_add_alt_1,
-                  title: l10n.registerUser,
-                  subtitle: l10n.createNewUser,
-                  color: Colors.blue,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const RegisterUserPage(),
-                      ),
-                    );
-                  },
-                ),
-                _buildActionCard(
-                  context,
-                  icon: Icons.people,
-                  title: l10n.viewUsers,
-                  subtitle: l10n.manageUsers,
-                  color: Colors.indigo,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const UsersListPage(),
-                      ),
-                    );
-                  },
-                ),
+                // Opciones de gestión de usuarios - Solo para administradores
+                if (authProvider.isAdmin) ...[
+                  _buildActionCard(
+                    context,
+                    icon: Icons.person_add_alt_1,
+                    title: l10n.registerUser,
+                    subtitle: l10n.createNewUser,
+                    color: Colors.blue,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const RegisterUserPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    icon: Icons.people,
+                    title: l10n.viewUsers,
+                    subtitle: l10n.manageUsers,
+                    color: Colors.indigo,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const UsersListPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
                 _buildActionCard(
                   context,
                   icon: Icons.add_business,
@@ -280,15 +283,18 @@ class DashboardPage extends StatelessWidget {
             // Cards de estadísticas
             Row(
               children: [
-                Expanded(
-                  child: _buildStatCard(
-                    l10n.users,
-                    '12',
-                    Icons.people,
-                    Colors.blue,
+                // Estadística de usuarios - Solo para administradores
+                if (authProvider.isAdmin) ...[
+                  Expanded(
+                    child: _buildStatCard(
+                      l10n.users,
+                      '12',
+                      Icons.people,
+                      Colors.blue,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
+                  const SizedBox(width: 16),
+                ],
                 Expanded(
                   child: _buildStatCard(
                     l10n.stores,

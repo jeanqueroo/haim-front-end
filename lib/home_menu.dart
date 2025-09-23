@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'features/auth/pages/login_page.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/settings/pages/settings_page.dart';
+import 'features/users/pages/register_user_page.dart';
+import 'features/users/pages/users_list_page.dart';
 import 'register_store_page.dart';
 import 'select_store_page.dart';
 import 'dashboard_page.dart';
@@ -18,6 +20,7 @@ class HomeMenu extends StatefulWidget {
 
 class _HomeMenuState extends State<HomeMenu> {
   int _selectedIndex = 0;
+  bool _isUserMenuExpanded = false;
 
   static const List<Widget> _pages = <Widget>[
     DashboardPage(),
@@ -25,9 +28,17 @@ class _HomeMenuState extends State<HomeMenu> {
     SettingsPage(),
     _RegisterStorePage(),
     _SelectStorePage(),
+    RegisterUserPage(),
+    UsersListPage(),
   ];
 
   void _onNavTap(int index) {
+    // Verificar si el usuario intenta acceder a páginas de usuario sin ser admin
+    if ((index == 5 || index == 6) && !context.read<AuthProvider>().isAdmin) {
+      // Si no es admin, no permitir acceso a páginas de usuario
+      return;
+    }
+    
     setState(() {
       _selectedIndex = index;
     });
@@ -94,7 +105,10 @@ class _HomeMenuState extends State<HomeMenu> {
             1 => l10n.profile,
             2 => l10n.settings,
             3 => l10n.registerStore,
-            _ => l10n.selectStore,
+            4 => l10n.selectStore,
+            5 => l10n.registerUser,
+            6 => l10n.users,
+            _ => l10n.home,
           },
         ),
       ),
@@ -133,6 +147,38 @@ class _HomeMenuState extends State<HomeMenu> {
                 _onNavTap(1);
               },
             ),
+            // Menú de Usuario expandible - Solo para administradores
+            if (authProvider.isAdmin)
+              ExpansionTile(
+                leading: const Icon(Icons.people_outline),
+                title: Text(l10n.users),
+                initiallyExpanded: _isUserMenuExpanded,
+                onExpansionChanged: (bool expanded) {
+                  setState(() {
+                    _isUserMenuExpanded = expanded;
+                  });
+                },
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.person_add),
+                    title: Text(l10n.registerUser),
+                    selected: _selectedIndex == 5,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _onNavTap(5);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.list),
+                    title: Text(l10n.users),
+                    selected: _selectedIndex == 6,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _onNavTap(6);
+                    },
+                  ),
+                ],
+              ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: Text(l10n.settings),
@@ -171,8 +217,14 @@ class _HomeMenuState extends State<HomeMenu> {
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _onNavTap,
+        selectedIndex: _selectedIndex > 4 ? 0 : _selectedIndex,
+        onDestinationSelected: (int index) {
+          // Si se selecciona una página de usuario desde el bottom nav, no hacer nada
+          // ya que estas páginas solo se acceden desde el drawer
+          if (index <= 4) {
+            _onNavTap(index);
+          }
+        },
         destinations: <NavigationDestination>[
           NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: l10n.home),
           NavigationDestination(icon: const Icon(Icons.person_outline), label: l10n.profile),

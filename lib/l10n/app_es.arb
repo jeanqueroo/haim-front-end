@@ -51,5 +51,8 @@
   "delete": "Eliminar",
   "confirm": "Confirmar",
   "yes": "Sí",
-  "no": "No"
+  "no": "No",
+  "spain": "España",
+  "unitedStates": "Estados Unidos",
+  "countryRequired": "El país es obligatorio"
 }

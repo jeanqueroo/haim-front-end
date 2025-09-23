@@ -119,6 +119,20 @@ class AppLocalizations {
   'version': 'Versión',
   'store': 'Tienda',
   'product': 'Producto',
+  'editUser': 'Editar Usuario',
+  'firstNameRequired': 'El nombre es obligatorio',
+  'lastNameRequired': 'Los apellidos son obligatorios',
+  'emailRequired': 'El email es obligatorio',
+  'ageRequired': 'La edad es obligatoria',
+  'invalidAge': 'La edad debe ser un número válido mayor a 0',
+  'addressRequired': 'La dirección es obligatoria',
+  'countryRequired': 'El país es obligatorio',
+  'spain': 'España',
+  'unitedStates': 'Estados Unidos',
+  'rolesRequired': 'Debe seleccionar al menos un rol',
+  'saving': 'Guardando...',
+  'userUpdatedSuccessfully': 'Usuario actualizado exitosamente',
+  'errorUpdatingUser': 'Error al actualizar usuario',
   };
 
   // Textos en inglés
@@ -229,6 +243,20 @@ class AppLocalizations {
   'version': 'Version',
   'store': 'Store',
   'product': 'Product',
+  'editUser': 'Edit User',
+  'firstNameRequired': 'First name is required',
+  'lastNameRequired': 'Last name is required',
+  'emailRequired': 'Email is required',
+  'ageRequired': 'Age is required',
+  'invalidAge': 'Age must be a valid number greater than 0',
+  'addressRequired': 'Address is required',
+  'countryRequired': 'Country is required',
+  'spain': 'Spain',
+  'unitedStates': 'United States',
+  'rolesRequired': 'At least one role must be selected',
+  'saving': 'Saving...',
+  'userUpdatedSuccessfully': 'User updated successfully',
+  'errorUpdatingUser': 'Error updating user',
   };
 
   String _getText(String key) {
@@ -347,6 +375,20 @@ class AppLocalizations {
   String get version => _getText('version');
   String get store => _getText('store');
   String get product => _getText('product');
+  String get editUser => _getText('editUser');
+  String get firstNameRequired => _getText('firstNameRequired');
+  String get lastNameRequired => _getText('lastNameRequired');
+  String get emailRequired => _getText('emailRequired');
+  String get ageRequired => _getText('ageRequired');
+  String get invalidAge => _getText('invalidAge');
+  String get addressRequired => _getText('addressRequired');
+  String get countryRequired => _getText('countryRequired');
+  String get spain => _getText('spain');
+  String get unitedStates => _getText('unitedStates');
+  String get rolesRequired => _getText('rolesRequired');
+  String get saving => _getText('saving');
+  String get userUpdatedSuccessfully => _getText('userUpdatedSuccessfully');
+  String get errorUpdatingUser => _getText('errorUpdatingUser');
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/user_service.dart';
 import '../../settings/services/language_service.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../widgets/country_dropdown_form_field.dart';
 
 class RegisterUserPage extends StatefulWidget {
   const RegisterUserPage({super.key});
@@ -18,12 +19,12 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   String? _gender; // "M" | "F" | "Otro"
+  String _selectedCountry = 'spain';
  
   final List<String> _allRoles = <String>["admin", "vendedor", "user"];
   final Set<String> _selectedRoles = <String>{};
@@ -36,7 +37,6 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _addressController.dispose();
-    _countryController.dispose();
     _ageController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -97,11 +97,24 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
 
     setState(() { _isSubmitting = true; });
     try {
+      // Map country key to full country name for server
+      String countryForServer;
+      switch (_selectedCountry) {
+        case 'spain':
+          countryForServer = 'España';
+          break;
+        case 'unitedStates':
+          countryForServer = 'Estados Unidos';
+          break;
+        default:
+          countryForServer = 'España';
+      }
+      
       final result = await _userService.registerUser(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         address: _addressController.text.trim(),
-        country: _countryController.text.trim(),
+        country: countryForServer,
         age: int.parse(_ageController.text.trim()),
         gender: _gender!,
         roles: _selectedRoles.toList(),
@@ -269,14 +282,15 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                   },
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _countryController,
-                  decoration: InputDecoration(
-                    labelText: l10n.country,
-                    border: const OutlineInputBorder(),
-                  ),
+                CountryDropdownFormField(
+                  value: _selectedCountry,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedCountry = value!;
+                    });
+                  },
                   validator: (String? v) {
-                    if ((v ?? '').trim().isEmpty) return l10n.required;
+                    if (v == null || v.isEmpty) return l10n.required;
                     return null;
                   },
                 ),
@@ -303,7 +317,6 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                   items: <DropdownMenuItem<String>>[
                     DropdownMenuItem(value: 'M', child: Text(l10n.male)),
                     DropdownMenuItem(value: 'F', child: Text(l10n.female)),
-                    DropdownMenuItem(value: 'Otro', child: Text(l10n.other)),
                   ],
                   decoration: InputDecoration(
                     labelText: l10n.gender,
