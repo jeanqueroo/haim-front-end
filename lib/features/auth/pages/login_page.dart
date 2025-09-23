@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_menu.dart';
+import '../../../home_menu.dart';
 import 'package:provider/provider.dart';
-import '../provider/auth_provider.dart';
+import '../providers/auth_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       if (isValid) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login exitoso')),
+          const SnackBar(content: Text('Login successful')),
         );
         // Navegación al menú principal tras login
         Navigator.of(context).pushReplacement(
@@ -64,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Credenciales inválidas')),
+          const SnackBar(content: Text('Invalid credentials')),
         );
       }
     } finally {
@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Iniciar sesión'),
+        title: const Text('Login'),
       ),
       body: SafeArea(
         child: Center(
@@ -101,11 +101,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     validator: (String? value) {
                       final String input = (value ?? '').trim();
-                      if (input.isEmpty) return 'El email es obligatorio';
+                      if (input.isEmpty) return 'Email is required';
                       final RegExp emailRegex = RegExp(
                         r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                       );
-                      if (!emailRegex.hasMatch(input)) return 'Email no válido';
+                      if (!emailRegex.hasMatch(input)) return 'Invalid email';
                       return null;
                     },
                   ),
@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      labelText: 'Contraseña',
+                      labelText: 'Password',
                       prefixIcon: const Icon(Icons.lock_outline),
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
@@ -132,8 +132,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     validator: (String? value) {
                       final String input = value ?? '';
-                      if (input.isEmpty) return 'La contraseña es obligatoria';
-                      if (input.length < 6) return 'Mínimo 6 caracteres';
+                      if (input.isEmpty) return 'Password is required';
+                      if (input.length < 6) return 'Minimum 6 characters';
                       return null;
                     },
                   ),
@@ -142,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: _isSubmitting ? null : () {},
-                      child: const Text('¿Olvidaste tu contraseña?'),
+                      child: const Text('Forgot password?'),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.login),
-                      label: Text(_isSubmitting ? 'Entrando...' : 'Entrar'),
+                      label: Text(_isSubmitting ? 'Logging in...' : 'Login'),
                     ),
                   ),
                   const SizedBox(height: 16),
