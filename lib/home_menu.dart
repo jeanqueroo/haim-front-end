@@ -5,7 +5,8 @@ import 'features/auth/providers/auth_provider.dart';
 import 'features/settings/pages/settings_page.dart';
 import 'features/users/pages/register_user_page.dart';
 import 'features/users/pages/users_list_page.dart';
-import 'register_store_page.dart';
+import 'features/stores/pages/stores_list_page.dart';
+import 'register_store_page.dart' as old;
 import 'select_store_page.dart';
 import 'dashboard_page.dart';
 import 'features/auth/pages/profile_page.dart';
@@ -21,6 +22,7 @@ class HomeMenu extends StatefulWidget {
 class _HomeMenuState extends State<HomeMenu> {
   int _selectedIndex = 0;
   bool _isUserMenuExpanded = false;
+  bool _isStoreMenuExpanded = false;
 
   static const List<Widget> _pages = <Widget>[
     DashboardPage(),
@@ -28,13 +30,14 @@ class _HomeMenuState extends State<HomeMenu> {
     SettingsPage(),
     _RegisterStorePage(),
     _SelectStorePage(),
+    _StoresListPage(),
     RegisterUserPage(),
     UsersListPage(),
   ];
 
   void _onNavTap(int index) {
     // Verificar si el usuario intenta acceder a páginas de usuario sin ser admin
-    if ((index == 5 || index == 6) && !context.read<AuthProvider>().isAdmin) {
+    if ((index == 6 || index == 7) && !context.read<AuthProvider>().isAdmin) {
       // Si no es admin, no permitir acceso a páginas de usuario
       return;
     }
@@ -106,8 +109,9 @@ class _HomeMenuState extends State<HomeMenu> {
             2 => l10n.settings,
             3 => l10n.registerStore,
             4 => l10n.selectStore,
-            5 => l10n.registerUser,
-            6 => l10n.users,
+            5 => l10n.stores,
+            6 => l10n.registerUser,
+            7 => l10n.users,
             _ => l10n.home,
           },
         ),
@@ -147,6 +151,15 @@ class _HomeMenuState extends State<HomeMenu> {
                 _onNavTap(1);
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: Text(l10n.settings),
+              selected: _selectedIndex == 2,
+              onTap: () {
+                Navigator.pop(context);
+                _onNavTap(2);
+              },
+            ),
             // Menú de Usuario expandible - Solo para administradores
             if (authProvider.isAdmin)
               ExpansionTile(
@@ -162,40 +175,53 @@ class _HomeMenuState extends State<HomeMenu> {
                   ListTile(
                     leading: const Icon(Icons.person_add),
                     title: Text(l10n.registerUser),
-                    selected: _selectedIndex == 5,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _onNavTap(5);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.list),
-                    title: Text(l10n.users),
                     selected: _selectedIndex == 6,
                     onTap: () {
                       Navigator.pop(context);
                       _onNavTap(6);
                     },
                   ),
+                  ListTile(
+                    leading: const Icon(Icons.list),
+                    title: Text(l10n.users),
+                    selected: _selectedIndex == 7,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _onNavTap(7);
+                    },
+                  ),
                 ],
               ),
-            ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: Text(l10n.settings),
-              selected: _selectedIndex == 2,
-              onTap: () {
-                Navigator.pop(context);
-                _onNavTap(2);
+            // Menú de Tiendas expandible
+            ExpansionTile(
+              leading: const Icon(Icons.store_outlined),
+              title: Text(l10n.stores),
+              initiallyExpanded: _isStoreMenuExpanded,
+              onExpansionChanged: (bool expanded) {
+                setState(() {
+                  _isStoreMenuExpanded = expanded;
+                });
               },
-            ),
-            ListTile(
-              leading: const Icon(Icons.add_business),
-              title: Text(l10n.registerStore),
-              selected: _selectedIndex == 3,
-              onTap: () {
-                Navigator.pop(context);
-                _onNavTap(3);
-              },
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.add_business),
+                  title: Text(l10n.registerStore),
+                  selected: _selectedIndex == 3,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _onNavTap(3);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.list),
+                  title: Text(l10n.stores),
+                  selected: _selectedIndex == 5,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _onNavTap(5);
+                  },
+                ),
+              ],
             ),
             ListTile(
               leading: const Icon(Icons.add_shopping_cart),
@@ -229,7 +255,7 @@ class _HomeMenuState extends State<HomeMenu> {
           NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: l10n.home),
           NavigationDestination(icon: const Icon(Icons.person_outline), label: l10n.profile),
           NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n.settings),
-          NavigationDestination(icon: const Icon(Icons.add_business), label: l10n.store),
+          NavigationDestination(icon: const Icon(Icons.store_outlined), label: l10n.stores),
           NavigationDestination(icon: const Icon(Icons.add_shopping_cart), label: l10n.product),
         ],
       ),
@@ -279,7 +305,7 @@ class _RegisterStorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const RegisterStorePage();
+    return const old.RegisterStorePage();
   }
 }
 
@@ -289,6 +315,15 @@ class _SelectStorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SelectStorePage();
+  }
+}
+
+class _StoresListPage extends StatelessWidget {
+  const _StoresListPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const StoresListPage();
   }
 }
 

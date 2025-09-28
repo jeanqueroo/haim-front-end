@@ -57,8 +57,8 @@ class AuthService {
       final data = jsonDecode(response.body);
       
       // Guardar tokens
-      await _storage.write(key: "access_token", value: data["access_token"]);
-      await _storage.write(key: "refresh_token", value: data["refresh_token"]);
+      await _storage.write(key: "access_token", value: data["accessToken"]);
+      await _storage.write(key: "refresh_token", value: data["refreshToken"]);
       
       // Guardar datos del usuario si están disponibles
       if (data["user"] != null) {

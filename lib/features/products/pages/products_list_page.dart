@@ -30,7 +30,7 @@ class ProductsListPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.productsFeatureDescription,
+              'Lista de productos próximamente disponible',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[500],
               ),
