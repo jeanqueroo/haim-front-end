@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../services/store_service.dart';
+import 'edit_store_page.dart';
 
 class StoresListPage extends StatefulWidget {
   const StoresListPage({super.key});
@@ -152,6 +153,23 @@ class _StoresListPageState extends State<StoresListPage> {
         );
       }
     }
+  }
+
+  void _navigateToEditStore(StoreInfo store) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditStorePage(
+          storeId: store.id,
+          storeInfo: store,
+        ),
+      ),
+    ).then((result) {
+      // Recargar la lista si se actualizó la tienda
+      if (result == true) {
+        _loadStores();
+      }
+    });
   }
 
   void _showDeleteConfirmation(String storeId, String storeName) {
@@ -480,11 +498,26 @@ class _StoresListPageState extends State<StoresListPage> {
               ),
               trailing: PopupMenuButton<String>(
                 onSelected: (value) {
-                  if (value == 'delete') {
+                  if (value == 'edit') {
+                    _navigateToEditStore(store);
+                  } else if (value == 'delete') {
                     _showDeleteConfirmation(store.id, store.name);
                   }
                 },
                 itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, color: Colors.blue[400]),
+                        const SizedBox(width: 8),
+                        Text(
+                          isSpanish ? 'Editar' : 'Edit',
+                          style: TextStyle(color: Colors.blue[400]),
+                        ),
+                      ],
+                    ),
+                  ),
                   PopupMenuItem(
                     value: 'delete',
                     child: Row(

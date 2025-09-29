@@ -4,6 +4,9 @@ import 'welcome_page.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/settings/services/language_service.dart';
+import 'features/auth/widgets/session_guard.dart';
+import 'features/auth/pages/login_page.dart';
+import 'home_menu.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
@@ -43,7 +46,27 @@ class MyApp extends StatelessWidget {
               Locale('es', 'ES'), // Español
               Locale('en', 'US'), // Inglés
             ],
-            home: const WelcomePage(),
+            routes: {
+              '/': (context) => const SessionGuard(
+                child: WelcomePage(),
+              ),
+              '/login': (context) => const LoginPage(),
+              '/register': (context) => const LoginPage(), // Usar LoginPage como fallback
+              '/home': (context) => const SessionGuard(
+                child: HomeMenu(),
+              ),
+            },
+            onGenerateRoute: (settings) {
+              // Manejar rutas no definidas
+              if (settings.name == '/welcome') {
+                return MaterialPageRoute(
+                  builder: (context) => const SessionGuard(
+                    child: WelcomePage(),
+                  ),
+                );
+              }
+              return null;
+            },
           );
         },
       ),

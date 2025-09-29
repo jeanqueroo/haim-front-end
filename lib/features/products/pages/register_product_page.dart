@@ -42,3 +42,4 @@ class RegisterProductPage extends StatelessWidget {
     );
   }
 }
+

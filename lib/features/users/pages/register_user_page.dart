@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/user_service.dart';
 import '../../settings/services/language_service.dart';
+import '../../stores/services/store_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/country_dropdown_form_field.dart';
 
 class RegisterUserPage extends StatefulWidget {
-  const RegisterUserPage({super.key});
+  final StoreInfo? preSelectedStore;
+  
+  const RegisterUserPage({
+    super.key,
+    this.preSelectedStore,
+  });
 
   @override
   State<RegisterUserPage> createState() => _RegisterUserPageState();

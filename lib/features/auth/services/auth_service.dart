@@ -198,4 +198,20 @@ class AuthService {
 
     return false;
   }
+
+  /// Verifica si el token actual es válido
+  Future<http.Response> verifyToken() async {
+    final token = await getAccessToken();
+    if (token == null) {
+      throw Exception('No access token available');
+    }
+
+    return await http.get(
+      Uri.parse("$baseUrl/auth/verify"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+    );
+  }
 }

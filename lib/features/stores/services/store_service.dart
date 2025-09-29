@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import '../../auth/services/auth_service.dart';
+import '../../auth/services/http_interceptor.dart';
 
 class StoreService {
   final String baseUrl = "http://10.0.2.2:3000";
   final AuthService _authService = AuthService();
+  final HttpInterceptor _httpInterceptor = HttpInterceptor();
 
   /// Obtiene los headers de autenticación con el token
   Future<Map<String, String>> _getAuthHeaders() async {
@@ -200,10 +203,7 @@ class StoreService {
   /// Obtiene la lista de todas las tiendas registradas
   Future<List<StoreInfo>> getAllStores() async {
     try {
-      final response = await http.get(
-        Uri.parse("$baseUrl/stores"),
-        headers: await _getAuthHeaders(),
-      ).timeout(const Duration(seconds: 15));
+      final response = await _httpInterceptor.get("$baseUrl/stores");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -217,6 +217,28 @@ class StoreService {
       }
       return [];
     } catch (e) {
+      return [];
+    }
+  }
+
+  /// Obtiene las tiendas de un usuario específico
+  Future<List<StoreInfo>> getStoresForUser(String userId, {BuildContext? context}) async {
+    try {
+      final response = await _httpInterceptor.get("$baseUrl/stores/user/$userId", context: context);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data.map((storeData) => StoreInfo.fromJson(storeData)).toList();
+        } else if (data['stores'] is List) {
+          return (data['stores'] as List)
+              .map((storeData) => StoreInfo.fromJson(storeData))
+              .toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      // Si el endpoint no existe, devolver lista vacía
       return [];
     }
   }
@@ -404,11 +426,11 @@ class StoreInfo {
     return StoreInfo(
       id: json['id']?.toString() ?? '',
       name: json['name'] ?? '',
-      type: json['type'] ?? '',
+      type: json['storeType'] ?? json['type'] ?? '', // Try both storeType and type
       address: json['address'] ?? '',
       country: json['country'] ?? '',
       phone: json['phone'] ?? '',
-      responsibleUserId: json['responsibleUserId'] ?? '',
+      responsibleUserId: json['userId']?.toString() ?? '',
       responsibleUserName: json['responsibleUserName'],
       createdAt: json['createdAt'] != null 
           ? DateTime.tryParse(json['createdAt']) 

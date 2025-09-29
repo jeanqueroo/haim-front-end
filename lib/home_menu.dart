@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_login_app/features/stores/pages/index.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/pages/login_page.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/auth/services/navigation_guard.dart';
 import 'features/settings/pages/settings_page.dart';
 import 'features/users/pages/register_user_page.dart';
 import 'features/users/pages/users_list_page.dart';
-import 'features/stores/pages/stores_list_page.dart';
-import 'register_store_page.dart' as old;
-import 'select_store_page.dart';
+import 'features/tables/pages/tables_list_page.dart';
+import 'features/tables/pages/register_table_page.dart';
 import 'dashboard_page.dart';
 import 'features/auth/pages/profile_page.dart';
+import 'select_store_page.dart';
 import 'l10n/app_localizations.dart';
 
 class HomeMenu extends StatefulWidget {
@@ -23,25 +25,38 @@ class _HomeMenuState extends State<HomeMenu> {
   int _selectedIndex = 0;
   bool _isUserMenuExpanded = false;
   bool _isStoreMenuExpanded = false;
+  bool _isTableMenuExpanded = false;
+  final NavigationGuard _navigationGuard = NavigationGuard();
+
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar verificación periódica de sesión
+    _navigationGuard.startPeriodicSessionCheck(context);
+  }
 
   static const List<Widget> _pages = <Widget>[
-    DashboardPage(),
-    ProfilePage(),
-    SettingsPage(),
-    _RegisterStorePage(),
-    _SelectStorePage(),
-    _StoresListPage(),
-    RegisterUserPage(),
-    UsersListPage(),
+    DashboardPage(),           // 0 - Home
+    ProfilePage(),            // 1 - Profile
+    SettingsPage(),           // 2 - Settings
+    _RegisterStorePage(),     // 3 - Register Store
+    _SelectStorePage(),       // 4 - Select Store
+    _StoresListPage(),        // 5 - Stores List
+    _RegisterTablePage(),     // 6 - Register Table
+    _TablesListPage(),        // 7 - Tables List
+    RegisterUserPage(),       // 8 - Register User
+    UsersListPage(),          // 9 - Users List
+    _SelectStoreForUsersPage(), // 10 - Select Store for Users
   ];
 
   void _onNavTap(int index) {
     // Verificar si el usuario intenta acceder a páginas de usuario sin ser admin
-    if ((index == 6 || index == 7) && !context.read<AuthProvider>().isAdmin) {
+    if ((index == 8 || index == 9 || index == 10) && !context.read<AuthProvider>().isAdmin) {
       // Si no es admin, no permitir acceso a páginas de usuario
       return;
     }
     
+    // Cambiar la página directamente (navegación interna)
     setState(() {
       _selectedIndex = index;
     });
@@ -110,8 +125,11 @@ class _HomeMenuState extends State<HomeMenu> {
             3 => l10n.registerStore,
             4 => l10n.selectStore,
             5 => l10n.stores,
-            6 => l10n.registerUser,
-            7 => l10n.users,
+            6 => 'Registrar Mesa',
+            7 => 'Mesas',
+            8 => l10n.registerUser,
+            9 => l10n.users,
+            10 => l10n.selectStoreForUsers,
             _ => l10n.home,
           },
         ),
@@ -175,21 +193,21 @@ class _HomeMenuState extends State<HomeMenu> {
                   ListTile(
                     leading: const Icon(Icons.person_add),
                     title: Text(l10n.registerUser),
-                    selected: _selectedIndex == 6,
+                    selected: _selectedIndex == 8,
                     onTap: () {
                       Navigator.pop(context);
-                      _onNavTap(6);
+                      _onNavTap(8);
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.list),
                     title: Text(l10n.users),
-                    selected: _selectedIndex == 7,
+                    selected: _selectedIndex == 9,
                     onTap: () {
                       Navigator.pop(context);
-                      _onNavTap(7);
+                      _onNavTap(9);
                     },
-                  ),
+                  )
                 ],
               ),
             // Menú de Tiendas expandible
@@ -219,6 +237,46 @@ class _HomeMenuState extends State<HomeMenu> {
                   onTap: () {
                     Navigator.pop(context);
                     _onNavTap(5);
+                  },
+                ),
+                  ListTile(
+                    leading: const Icon(Icons.people_alt_outlined),
+                    title: Text(l10n.selectStoreForUsers),
+                    selected: _selectedIndex == 10,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _onNavTap(10);
+                    },
+                  ),
+              ],
+            ),
+            // Menú de Mesas expandible
+            ExpansionTile(
+              leading: const Icon(Icons.table_restaurant_outlined),
+              title: Text('Mesas'),
+              initiallyExpanded: _isTableMenuExpanded,
+              onExpansionChanged: (bool expanded) {
+                setState(() {
+                  _isTableMenuExpanded = expanded;
+                });
+              },
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.add),
+                  title: Text('Registrar Mesa'),
+                  selected: _selectedIndex == 6,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _onNavTap(6);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.list),
+                  title: Text('Lista de Mesas'),
+                  selected: _selectedIndex == 7,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _onNavTap(7);
                   },
                 ),
               ],
@@ -256,7 +314,7 @@ class _HomeMenuState extends State<HomeMenu> {
           NavigationDestination(icon: const Icon(Icons.person_outline), label: l10n.profile),
           NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n.settings),
           NavigationDestination(icon: const Icon(Icons.store_outlined), label: l10n.stores),
-          NavigationDestination(icon: const Icon(Icons.add_shopping_cart), label: l10n.product),
+          NavigationDestination(icon: const Icon(Icons.table_restaurant_outlined), label: 'Mesas'),
         ],
       ),
     );
@@ -305,7 +363,7 @@ class _RegisterStorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const old.RegisterStorePage();
+    return const RegisterStorePage();
   }
 }
 
@@ -318,12 +376,40 @@ class _SelectStorePage extends StatelessWidget {
   }
 }
 
+
 class _StoresListPage extends StatelessWidget {
   const _StoresListPage();
 
   @override
   Widget build(BuildContext context) {
     return const StoresListPage();
+  }
+}
+
+class _RegisterTablePage extends StatelessWidget {
+  const _RegisterTablePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const RegisterTablePage();
+  }
+}
+
+class _TablesListPage extends StatelessWidget {
+  const _TablesListPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const TablesListPage();
+  }
+}
+
+class _SelectStoreForUsersPage extends StatelessWidget {
+  const _SelectStoreForUsersPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SelectStoreForUsersPage();
   }
 }
 

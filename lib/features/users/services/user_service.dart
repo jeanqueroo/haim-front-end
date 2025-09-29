@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import '../../auth/services/auth_service.dart';
+import '../../auth/services/http_interceptor.dart';
 
 class UserService {
   final String baseUrl = "http://10.0.2.2:3000";
   final AuthService _authService = AuthService();
+  final HttpInterceptor _httpInterceptor = HttpInterceptor();
 
   /// Obtiene los headers de autenticación con el token
   Future<Map<String, String>> _getAuthHeaders() async {
@@ -13,6 +16,105 @@ class UserService {
       "Content-Type": "application/json",
       if (token != null) "Authorization": "Bearer $token",
     };
+  }
+
+  /// Agrega un usuario a una tienda
+  /// 
+  /// [storeId] - ID de la tienda
+  /// [userId] - ID del usuario
+  /// [isPrimary] - Si el usuario es el usuario principal de la tienda
+  /// 
+  /// Retorna un [UserStoreAssignmentResult] con el resultado de la asignación
+  Future<UserStoreAssignmentResult> addUserToStore({
+    required int storeId,
+    required int userId,
+    bool isPrimary = false,
+    BuildContext? context,
+  }) async {
+    try {
+      final body = jsonEncode({
+        'userId': userId,
+        'isPrimary': isPrimary,
+      });
+
+      final response = await _httpInterceptor.post(
+        '$baseUrl/stores/$storeId/users',
+        body: body,
+        context: context,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return UserStoreAssignmentResult.success(
+          id: data['id'],
+          storeId: data['storeId'],
+          userId: data['userId'],
+          isPrimary: data['isPrimary'],
+          status: data['status'],
+          joinedAt: data['joinedAt'] != null 
+              ? DateTime.tryParse(data['joinedAt']) 
+              : null,
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        return UserStoreAssignmentResult.error(
+          errorData['message'] ?? 'Error al agregar usuario a la tienda'
+        );
+      }
+    } catch (e) {
+      return UserStoreAssignmentResult.error('Error de conexión: $e');
+    }
+  }
+
+  /// Agrega múltiples usuarios a una tienda
+  /// 
+  /// [storeId] - ID de la tienda
+  /// [userIds] - Lista de IDs de usuarios
+  /// [isPrimary] - Si los usuarios son usuarios principales de la tienda
+  /// 
+  /// Retorna un [BulkUserStoreAssignmentResult] con el resultado de las asignaciones
+  Future<BulkUserStoreAssignmentResult> addUsersToStore({
+    required int storeId,
+    required List<int> userIds,
+    bool isPrimary = false,
+    BuildContext? context,
+  }) async {
+    try {
+      final results = <UserStoreAssignmentResult>[];
+      final errors = <String>[];
+
+      for (final userId in userIds) {
+        final result = await addUserToStore(
+          storeId: storeId,
+          userId: userId,
+          isPrimary: isPrimary,
+          context: context,
+        );
+        
+        if (result.isSuccess) {
+          results.add(result);
+        } else {
+          errors.add('Usuario $userId: ${result.message}');
+        }
+      }
+
+      if (errors.isEmpty) {
+        return BulkUserStoreAssignmentResult.success(
+          successfulAssignments: results,
+          totalProcessed: userIds.length,
+          totalSuccessful: results.length,
+        );
+      } else {
+        return BulkUserStoreAssignmentResult.partialSuccess(
+          successfulAssignments: results,
+          errors: errors,
+          totalProcessed: userIds.length,
+          totalSuccessful: results.length,
+        );
+      }
+    } catch (e) {
+      return BulkUserStoreAssignmentResult.error('Error de conexión: $e');
+    }
   }
 
   /// Registra un nuevo usuario en el sistema
@@ -198,12 +300,9 @@ class UserService {
   }
 
   /// Obtiene la lista de todos los usuarios registrados
-  Future<List<UserInfo>> getAllUsers() async {
+  Future<List<UserInfo>> getAllUsers({BuildContext? context}) async {
     try {
-      final response = await http.get(
-        Uri.parse("$baseUrl/users"),
-        headers: await _getAuthHeaders(),
-      ).timeout(const Duration(seconds: 15));
+      final response = await _httpInterceptor.get("$baseUrl/users", context: context);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -431,5 +530,116 @@ class UserInfo {
       'roles': roles,
       'createdAt': createdAt?.toIso8601String(),
     };
+  }
+}
+
+/// Clase para manejar el resultado de asignar un usuario a una tienda
+class UserStoreAssignmentResult {
+  final bool isSuccess;
+  final String message;
+  final int? id;
+  final int? storeId;
+  final int? userId;
+  final bool? isPrimary;
+  final String? status;
+  final DateTime? joinedAt;
+
+  UserStoreAssignmentResult._({
+    required this.isSuccess,
+    required this.message,
+    this.id,
+    this.storeId,
+    this.userId,
+    this.isPrimary,
+    this.status,
+    this.joinedAt,
+  });
+
+  factory UserStoreAssignmentResult.success({
+    required int id,
+    required int storeId,
+    required int userId,
+    required bool isPrimary,
+    required String status,
+    DateTime? joinedAt,
+  }) {
+    return UserStoreAssignmentResult._(
+      isSuccess: true,
+      message: 'Usuario agregado a la tienda exitosamente',
+      id: id,
+      storeId: storeId,
+      userId: userId,
+      isPrimary: isPrimary,
+      status: status,
+      joinedAt: joinedAt,
+    );
+  }
+
+  factory UserStoreAssignmentResult.error(String message) {
+    return UserStoreAssignmentResult._(
+      isSuccess: false,
+      message: message,
+    );
+  }
+}
+
+/// Clase para manejar el resultado de asignar múltiples usuarios a una tienda
+class BulkUserStoreAssignmentResult {
+  final bool isSuccess;
+  final String message;
+  final List<UserStoreAssignmentResult> successfulAssignments;
+  final List<String> errors;
+  final int totalProcessed;
+  final int totalSuccessful;
+
+  BulkUserStoreAssignmentResult._({
+    required this.isSuccess,
+    required this.message,
+    required this.successfulAssignments,
+    required this.errors,
+    required this.totalProcessed,
+    required this.totalSuccessful,
+  });
+
+  factory BulkUserStoreAssignmentResult.success({
+    required List<UserStoreAssignmentResult> successfulAssignments,
+    required int totalProcessed,
+    required int totalSuccessful,
+  }) {
+    return BulkUserStoreAssignmentResult._(
+      isSuccess: true,
+      message: 'Todos los usuarios fueron agregados exitosamente',
+      successfulAssignments: successfulAssignments,
+      errors: [],
+      totalProcessed: totalProcessed,
+      totalSuccessful: totalSuccessful,
+    );
+  }
+
+  factory BulkUserStoreAssignmentResult.partialSuccess({
+    required List<UserStoreAssignmentResult> successfulAssignments,
+    required List<String> errors,
+    required int totalProcessed,
+    required int totalSuccessful,
+  }) {
+    return BulkUserStoreAssignmentResult._(
+      isSuccess: false,
+      message: 'Algunos usuarios fueron agregados exitosamente',
+      successfulAssignments: successfulAssignments,
+      errors: errors,
+      totalProcessed: totalProcessed,
+      totalSuccessful: totalSuccessful,
+    );
+  }
+
+  factory BulkUserStoreAssignmentResult.error(String message) {
+    return BulkUserStoreAssignmentResult._(
+      isSuccess: false,
+      message: message,
+      successfulAssignments: [],
+      errors: [message],
+      totalProcessed: 0,
+      totalSuccessful: 0,
+    );
   }
 }
