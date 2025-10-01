@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../users/services/user_service.dart';
 import '../services/store_service.dart';
+import '../../../widgets/country_dropdown_form_field.dart';
+import '../../../providers/store_provider.dart';
 
 class StoreWorkersPage extends StatefulWidget {
-  final StoreInfo store;
-
-  const StoreWorkersPage({
-    super.key,
-    required this.store,
-  });
+  const StoreWorkersPage({super.key});
 
   @override
   State<StoreWorkersPage> createState() => _StoreWorkersPageState();
@@ -17,9 +15,9 @@ class StoreWorkersPage extends StatefulWidget {
 
 class _StoreWorkersPageState extends State<StoreWorkersPage> {
   final UserService _userService = UserService();
-  List<UserInfo> _workers = [];
-  List<UserInfo> _filteredWorkers = [];
-  Set<String> _selectedWorkers = {}; // IDs de trabajadores seleccionados
+  List<UserInfo> _allUsers = []; // Todos los usuarios disponibles
+  List<UserInfo> _searchResults = []; // Resultados de búsqueda
+  List<UserInfo> _selectedWorkers = []; // Usuarios seleccionados para enviar
   bool _isLoading = false;
   String? _errorMessage;
   String _searchQuery = '';
@@ -38,23 +36,46 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
     super.dispose();
   }
 
+  
+
   Future<void> _loadWorkers() async {
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    final selectedStore = storeProvider.selectedStore;
+
+    if (selectedStore == null) {
+      setState(() {
+        _errorMessage = 'No hay tienda seleccionada';
+        _isLoading = false;
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final users = await _userService.getAllUsers(context: context);
-      // Filtrar solo los trabajadores de esta tienda
-      // Por ahora mostramos todos los usuarios, pero en el futuro se puede filtrar por tienda
-      final workers = users.where((user) => 
-        user.roles.contains('vendedor') || user.roles.contains('admin')
+      // Cargar todos los usuarios disponibles para búsqueda
+      final allUsers = await _userService.getAllUsers(context: context);
+      
+      // Cargar usuarios existentes de la tienda
+      final storeId = int.tryParse(selectedStore.id) ?? 0;
+      List<UserInfo> existingStoreUsers = [];
+      
+      if (storeId > 0) {
+        existingStoreUsers = await _userService.getStoreUsers(storeId, context: context);
+      }
+      
+      // Filtrar solo los trabajadores disponibles para agregar
+      final availableWorkers = allUsers.where((user) => 
+        user.roles.contains('waiter') || user.roles.contains('chef') || user.roles.contains('vendedor') || user.roles.contains('admin')
       ).toList();
       
       setState(() {
-        _workers = workers;
-        _filteredWorkers = workers;
+        _allUsers = availableWorkers;
+        _selectedWorkers = existingStoreUsers; // Cargar usuarios existentes como seleccionados
+        _searchResults = [];
         _isLoading = false;
       });
     } catch (e) {
@@ -68,19 +89,19 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text.toLowerCase();
-      _applyFilters();
+      _performSearch();
     });
   }
 
   void _onRoleFilterChanged(String? role) {
     setState(() {
       _selectedRole = role;
-      _applyFilters();
+      _performSearch();
     });
   }
 
-  void _applyFilters() {
-    List<UserInfo> filtered = _workers;
+  void _performSearch() {
+    List<UserInfo> filtered = _allUsers;
 
     // Filtrar por búsqueda
     if (_searchQuery.isNotEmpty) {
@@ -98,8 +119,12 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       }).toList();
     }
 
+    // Excluir usuarios ya seleccionados
+    final selectedIds = _selectedWorkers.map((user) => user.id).toSet();
+    filtered = filtered.where((user) => !selectedIds.contains(user.id)).toList();
+
     setState(() {
-      _filteredWorkers = filtered;
+      _searchResults = filtered;
     });
   }
 
@@ -108,30 +133,263 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       _searchQuery = '';
       _selectedRole = null;
       _searchController.clear();
-      _filteredWorkers = _workers;
+      _searchResults = [];
     });
   }
 
-  void _toggleWorkerSelection(UserInfo worker) {
+  Future<void> _addWorker(UserInfo worker) async {
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    final selectedStore = storeProvider.selectedStore;
+
+    if (selectedStore == null) return;
+
     setState(() {
-      if (_selectedWorkers.contains(worker.id)) {
-        _selectedWorkers.remove(worker.id);
-      } else {
-        _selectedWorkers.add(worker.id);
+      _isLoading = true;
+    });
+
+    try {
+      final storeId = int.tryParse(selectedStore.id) ?? 0;
+      if (storeId == 0) {
+        throw Exception('ID de tienda inválido');
       }
-    });
+
+      final userId = int.tryParse(worker.id) ?? 0;
+      if (userId == 0) {
+        throw Exception('ID de usuario inválido');
+      }
+
+      // Llamar al API para agregar el usuario individualmente
+      final result = await _userService.addUserToStore(
+        storeId: storeId,
+        userId: userId,
+        isPrimary: false,
+        context: context,
+      );
+
+      if (result.isSuccess) {
+        // Agregar a la lista de seleccionados solo si fue exitoso
+        setState(() {
+          _selectedWorkers.add(worker);
+          _performSearch(); // Actualizar resultados de búsqueda
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ ${worker.firstName} ${worker.lastName} agregado a la tienda'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        // Mostrar error si falló
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al agregar ${worker.firstName} ${worker.lastName}: ${result.message}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error al agregar usuario: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
-  void _selectAllWorkers() {
+  Future<void> _removeWorker(UserInfo worker) async {
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    final selectedStore = storeProvider.selectedStore;
+
+    if (selectedStore == null) return;
+
     setState(() {
-      _selectedWorkers = _filteredWorkers.map((worker) => worker.id).toSet();
+      _isLoading = true;
     });
+
+    try {
+      final storeId = int.tryParse(selectedStore.id) ?? 0;
+      if (storeId == 0) {
+        throw Exception('ID de tienda inválido');
+      }
+
+      final userId = int.tryParse(worker.id) ?? 0;
+      if (userId == 0) {
+        throw Exception('ID de usuario inválido');
+      }
+
+      // Llamar al API para eliminar el usuario de la tienda
+      final result = await _userService.removeUserFromStore(
+        storeId: storeId,
+        userId: userId,
+        context: context,
+      );
+
+      if (result.isSuccess) {
+        // Remover de la lista de seleccionados solo si fue exitoso
+        setState(() {
+          _selectedWorkers.remove(worker);
+          _performSearch(); // Actualizar resultados de búsqueda
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ ${worker.firstName} ${worker.lastName} eliminado de la tienda'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        // Mostrar error si falló
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al eliminar ${worker.firstName} ${worker.lastName}: ${result.message}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error al eliminar usuario: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
-  void _clearSelection() {
+  Future<void> _clearSelection() async {
+    if (_selectedWorkers.isEmpty) return;
+
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    final selectedStore = storeProvider.selectedStore;
+
+    if (selectedStore == null) return;
+
+    // Mostrar confirmación antes de eliminar todos
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Eliminar todos los usuarios'),
+          content: Text('¿Estás seguro de que quieres eliminar ${_selectedWorkers.length} usuario(s) de la tienda?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Eliminar todos'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final storeId = int.tryParse(selectedStore.id) ?? 0;
+        if (storeId == 0) {
+          throw Exception('ID de tienda inválido');
+        }
+
+        // Eliminar cada usuario individualmente
+        int successCount = 0;
+        int errorCount = 0;
+        final errors = <String>[];
+
+        for (final worker in _selectedWorkers) {
+          final userId = int.tryParse(worker.id) ?? 0;
+          if (userId > 0) {
+            final result = await _userService.removeUserFromStore(
+              storeId: storeId,
+              userId: userId,
+              context: context,
+            );
+
+            if (result.isSuccess) {
+              successCount++;
+            } else {
+              errorCount++;
+              errors.add('${worker.firstName} ${worker.lastName}: ${result.message}');
+            }
+          }
+        }
+
+        // Limpiar la lista local
     setState(() {
       _selectedWorkers.clear();
-    });
+          _performSearch();
+        });
+
+        // Mostrar resultado
+        if (errorCount == 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('✅ $successCount usuario(s) eliminado(s) exitosamente'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } else if (successCount > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('⚠️ $successCount eliminado(s), $errorCount error(es)'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+          
+          // Mostrar errores detallados
+          if (errors.isNotEmpty) {
+            _showDetailedErrors(errors, AppLocalizations.of(context));
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ No se pudo eliminar ningún usuario'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al eliminar usuarios: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _sendSelectedWorkers() async {
@@ -147,7 +405,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
     }
 
     final l10n = AppLocalizations.of(context);
-    final selectedWorkersList = _workers.where((worker) => _selectedWorkers.contains(worker.id)).toList();
+    final selectedWorkersList = _selectedWorkers;
 
     // Mostrar confirmación
     final confirmed = await showDialog<bool>(
@@ -191,6 +449,10 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
 
   Future<void> _processSelectedWorkers(List<UserInfo> workers) async {
     final l10n = AppLocalizations.of(context);
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    final selectedStore = storeProvider.selectedStore;
+
+    if (selectedStore == null) return;
     
     setState(() {
       _isLoading = true;
@@ -204,19 +466,26 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
         throw Exception('No se pudieron procesar los IDs de los usuarios');
       }
 
+      final storeId = int.tryParse(selectedStore.id) ?? 0;
+      if (storeId == 0) {
+        throw Exception('ID de tienda inválido');
+      }
+
       // Llamar al API real
       final result = await _userService.addUsersToStore(
-        storeId: int.tryParse(widget.store.id) ?? 0,
+        storeId: storeId,
         userIds: userIds,
         isPrimary: false, // Por defecto no son usuarios principales
         context: context,
       );
 
       if (result.isSuccess) {
+        // Éxito completo
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.workersSentSuccessfully} (${result.totalSuccessful}/${result.totalProcessed})'),
+            content: Text('✅ ${result.totalSuccessful} trabajador(es) agregado(s) exitosamente a la tienda'),
             backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
           ),
         );
         
@@ -226,7 +495,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
         // Éxito parcial
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.workersSentSuccessfully} (${result.totalSuccessful}/${result.totalProcessed}). ${l10n.someErrorsOccurred}'),
+            content: Text('⚠️ ${result.totalSuccessful}/${result.totalProcessed} trabajadores agregados. Algunos errores ocurrieron.'),
             backgroundColor: Colors.orange,
             duration: const Duration(seconds: 5),
           ),
@@ -239,13 +508,20 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
         _clearSelection();
       } else {
         // Error completo
-        throw Exception(result.message);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: ${result.message}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.errorSendingWorkers}: $e'),
+          content: Text('❌ Error al enviar trabajadores: ${e.toString()}'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
         ),
       );
     } finally {
@@ -286,9 +562,64 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
+    return Consumer<StoreProvider>(
+      builder: (context, storeProvider, child) {
+        final selectedStore = storeProvider.selectedStore;
+        
+        if (selectedStore == null) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${l10n.workersForStore}: ${widget.store.name}'),
+              title: Text('${l10n.workersForStore} - Sin Tienda'),
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.store_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No hay tienda seleccionada',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Selecciona una tienda para gestionar los trabajadores',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => storeProvider.showStoreSelector(context),
+                    icon: const Icon(Icons.store),
+                    label: const Text('Seleccionar Tienda'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${l10n.workersForStore}'),
+                Text(
+                  selectedStore.name,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           if (_selectedWorkers.isNotEmpty) ...[
@@ -297,12 +628,12 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
               icon: const Icon(Icons.clear_all),
               tooltip: l10n.clearSelection,
             ),
-            IconButton(
-              onPressed: _selectAllWorkers,
-              icon: const Icon(Icons.select_all),
-              tooltip: l10n.selectAll,
-            ),
           ],
+            IconButton(
+            onPressed: _showRegisterUserDialog,
+            icon: const Icon(Icons.person_add),
+            tooltip: 'Register New User',
+          ),
           IconButton(
             onPressed: _loadWorkers,
             icon: const Icon(Icons.refresh),
@@ -347,7 +678,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                   radius: 24,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   child: Icon(
-                    _getStoreIcon(widget.store.type),
+                    _getStoreIcon(selectedStore.type),
                     color: Colors.white,
                     size: 24,
                   ),
@@ -358,7 +689,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.store.name,
+                        selectedStore.name,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -366,15 +697,15 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${l10n.storeType}: ${_getStoreTypeName(widget.store.type, l10n)}',
+                        '${l10n.storeType}: ${_getStoreTypeName(selectedStore.type, l10n)}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
                         ),
                       ),
-                      if (widget.store.address.isNotEmpty) ...[
+                      if (selectedStore.address.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
-                          '${l10n.address}: ${widget.store.address}',
+                          '${l10n.address}: ${selectedStore.address}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
                           ),
@@ -410,7 +741,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
             ),
           ),
 
-          // Información de selección
+          // Lista de usuarios seleccionados
           if (_selectedWorkers.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(16),
@@ -421,7 +752,10 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                   bottomRight: Radius.circular(16),
                 ),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                 children: [
                   Icon(
                     Icons.check_circle,
@@ -431,7 +765,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${l10n.selectedWorkersCount}: ${_selectedWorkers.length}',
+                          'Trabajadores de la tienda: ${_selectedWorkers.length}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSecondaryContainer,
                         fontWeight: FontWeight.bold,
@@ -440,38 +774,49 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _sendSelectedWorkers,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      minimumSize: const Size(0, 28),
-                      textStyle: const TextStyle(fontSize: 11),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (_isLoading) ...[
-                          const SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                           ),
                           const SizedBox(width: 4),
-                        ] else ...[
-                          const Icon(Icons.send, size: 14),
-                          const SizedBox(width: 4),
-                        ],
                         Text(
-                          l10n.sendSelected,
-                          style: const TextStyle(fontSize: 11),
+                          'Usuarios existentes en la tienda',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
+                  ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Lista de usuarios seleccionados
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _selectedWorkers.map((worker) => Chip(
+                      label: Text('${worker.firstName} ${worker.lastName}'),
+                      deleteIcon: const Icon(Icons.close, size: 18),
+                      onDeleted: () => _removeWorker(worker),
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      labelStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontSize: 12,
+                      ),
+                    )).toList(),
                   ),
                 ],
               ),
@@ -511,17 +856,64 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
               ),
             ),
 
+          // Título de resultados de búsqueda
+          if (_searchQuery.isNotEmpty || _selectedRole != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Search Results',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '(${_searchResults.length})',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           // Contenido principal
           Expanded(
             child: _buildBody(l10n),
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showRegisterUserDialog,
+        icon: const Icon(Icons.person_add),
+        label: const Text('Add User'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
+        );
+      },
     );
   }
 
   Widget _buildBody(AppLocalizations l10n) {
-    if (_isLoading) {
+    return Consumer<StoreProvider>(
+      builder: (context, storeProvider, child) {
+        final selectedStore = storeProvider.selectedStore;
+        
+        if (selectedStore == null) {
+          return const SizedBox.shrink();
+        }
+
+        if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
       );
@@ -562,7 +954,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       );
     }
 
-    if (_workers.isEmpty) {
+    if (_allUsers.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -599,7 +991,38 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       );
     }
 
-    if (_filteredWorkers.isEmpty) {
+    // Si no hay búsqueda activa, mostrar mensaje para buscar
+    if (_searchQuery.isEmpty && _selectedRole == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Search Workers to Add',
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Usa la barra de búsqueda para encontrar trabajadores y agregarlos a la tienda',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Si hay búsqueda pero no hay resultados
+    if (_searchResults.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -634,79 +1057,58 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       );
     }
 
+    // Mostrar resultados de búsqueda
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _filteredWorkers.length,
+      itemCount: _searchResults.length,
       itemBuilder: (context, index) {
-        final worker = _filteredWorkers[index];
-        final isSelected = _selectedWorkers.contains(worker.id);
+        final worker = _searchResults[index];
         
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          elevation: isSelected ? 4 : 1,
-          color: isSelected 
-              ? Theme.of(context).colorScheme.primaryContainer
-              : null,
-          child: CheckboxListTile(
-            value: isSelected,
-            onChanged: (bool? value) => _toggleWorkerSelection(worker),
+          elevation: 2,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Text(
+                '${worker.firstName[0]}${worker.lastName[0]}',
+                style: const TextStyle(
+                  color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              ),
+            ),
             title: Text(
               '${worker.firstName} ${worker.lastName}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isSelected 
-                    ? Theme.of(context).colorScheme.onPrimaryContainer
-                    : null,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 4),
-                Text(
-                  worker.email,
-                  style: TextStyle(
-                    color: isSelected 
-                        ? Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8)
-                        : null,
-                  ),
-                ),
+                Text(worker.email),
                 const SizedBox(height: 2),
-                Text(
-                  '${l10n.age}: ${worker.age} ${l10n.years}',
-                  style: TextStyle(
-                    color: isSelected 
-                        ? Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8)
-                        : null,
-                  ),
-                ),
+                Text('${l10n.age}: ${worker.age} ${l10n.years}'),
                 const SizedBox(height: 2),
-                Text(
-                  '${l10n.roles}: ${_getRolesText(worker.roles, l10n)}',
-                  style: TextStyle(
-                    color: isSelected 
-                        ? Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8)
-                        : null,
-                  ),
-                ),
+                Text('${l10n.roles}: ${_getRolesText(worker.roles, l10n)}'),
               ],
             ),
-            secondary: CircleAvatar(
-              backgroundColor: isSelected 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.primary,
-              child: Text(
-                '${worker.firstName[0]}${worker.lastName[0]}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            trailing: ElevatedButton.icon(
+              onPressed: () => _addWorker(worker),
+              icon: const Icon(Icons.add, size: 16),
+              label: Text('Add'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                minimumSize: const Size(0, 32),
+                textStyle: const TextStyle(fontSize: 12),
               ),
             ),
-            activeColor: Theme.of(context).colorScheme.primary,
-            checkColor: Colors.white,
           ),
         );
+      },
+    );
       },
     );
   }
@@ -805,5 +1207,537 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
 
   String _getRolesText(List<String> roles, AppLocalizations l10n) {
     return roles.map((role) => _getRoleName(role, l10n)).join(', ');
+  }
+
+  void _showRegisterUserDialog() {
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    final selectedStore = storeProvider.selectedStore;
+
+    if (selectedStore == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor selecciona una tienda primero'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _RegisterUserDialog(
+          onUserRegistered: (UserInfo newUser) {
+            // Agregar el nuevo usuario a la lista de usuarios disponibles
+            setState(() {
+              _allUsers.add(newUser);
+              // Agregar automáticamente a la lista de usuarios seleccionados
+              _selectedWorkers.add(newUser);
+              _performSearch(); // Actualizar resultados de búsqueda
+            });
+            
+            // Mostrar confirmación adicional
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${newUser.firstName} ${newUser.lastName} has been added to the selected workers list'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          },
+          store: selectedStore,
+        );
+      },
+    );
+  }
+}
+
+class _RegisterUserDialog extends StatefulWidget {
+  final Function(UserInfo) onUserRegistered;
+  final StoreInfo store;
+
+  const _RegisterUserDialog({
+    required this.onUserRegistered,
+    required this.store,
+  });
+
+  @override
+  State<_RegisterUserDialog> createState() => _RegisterUserDialogState();
+}
+
+class _RegisterUserDialogState extends State<_RegisterUserDialog> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final UserService _userService = UserService();
+
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String? _gender;
+  String _selectedCountry = 'spain';
+  final List<String> _selectedRoles = <String>[];
+  bool _isSubmitting = false;
+
+  // Solo permitir roles de waiter y chef
+  final List<String> _allowedRoles = ['waiter', 'chef'];
+
+  InputDecoration _getInputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+      ),
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+    );
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _addressController.dispose();
+    _ageController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void cleanUser() {
+    _firstNameController.clear();
+    _lastNameController.clear();
+    _addressController.clear();
+    _ageController.clear();
+    _emailController.clear();
+    _passwordController.clear();
+    _gender = null;
+    _selectedRoles.clear();
+    _selectedCountry = 'spain';
+    _isSubmitting = false;
+    _formKey.currentState?.reset();
+    FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _handleSubmit() async {
+    final FormState? formState = _formKey.currentState;
+    if (formState == null) return;
+    if (!formState.validate()) return;
+    
+    if (_gender == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a gender')),
+      );
+      return;
+    }
+    if (_selectedRoles.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one role')),
+      );
+      return;
+    }
+
+    setState(() { _isSubmitting = true; });
+    try {
+      // Map country key to full country name for server
+      String countryForServer;
+      switch (_selectedCountry) {
+        case 'spain':
+          countryForServer = 'España';
+          break;
+        case 'unitedStates':
+          countryForServer = 'Estados Unidos';
+          break;
+        default:
+          countryForServer = 'España';
+      }
+      
+      final result = await _userService.registerUser(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        address: _addressController.text.trim(),
+        country: countryForServer,
+        age: int.parse(_ageController.text.trim()),
+        gender: _gender!,
+        roles: _selectedRoles.toList(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      
+      if (!mounted) return;
+      
+      if (result.isSuccess) {
+        // Crear objeto UserInfo del nuevo usuario
+        final newUser = UserInfo(
+          id: result.userId ?? '',
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          address: _addressController.text.trim(),
+          country: countryForServer,
+          age: int.parse(_ageController.text.trim()),
+          gender: _gender!,
+          roles: _selectedRoles.toList(),
+        );
+        
+        // Asignar automáticamente el usuario a la tienda
+        final storeId = int.tryParse(widget.store.id) ?? 0;
+        if (storeId > 0) {
+          final userId = int.tryParse(newUser.id) ?? 0;
+          if (userId > 0) {
+            try {
+              final assignmentResult = await _userService.addUserToStore(
+                storeId: storeId,
+                userId: userId,
+                isPrimary: false,
+                context: context,
+              );
+              
+              if (assignmentResult.isSuccess) {
+                // Agregar el usuario a la lista solo si la asignación fue exitosa
+                widget.onUserRegistered(newUser);
+                
+                // Mostrar mensaje de éxito
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${result.message} - Usuario agregado automáticamente a la tienda'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              } else {
+                // Mostrar error de asignación
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Usuario registrado pero error al asignar a la tienda: ${assignmentResult.message}'),
+                    backgroundColor: Colors.orange,
+                    duration: const Duration(seconds: 4),
+                  ),
+                );
+                
+                // Agregar el usuario a la lista de todos modos para que pueda ser asignado manualmente
+                widget.onUserRegistered(newUser);
+              }
+            } catch (e) {
+              // Mostrar error de asignación
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Usuario registrado pero error al asignar a la tienda: $e'),
+                  backgroundColor: Colors.orange,
+                  duration: const Duration(seconds: 4),
+                ),
+              );
+              
+              // Agregar el usuario a la lista de todos modos para que pueda ser asignado manualmente
+              widget.onUserRegistered(newUser);
+            }
+          } else {
+            // Error con el ID del usuario
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Usuario registrado pero ID inválido para asignación'),
+                backgroundColor: Colors.orange,
+                duration: Duration(seconds: 4),
+              ),
+            );
+            
+            // Agregar el usuario a la lista de todos modos
+            widget.onUserRegistered(newUser);
+          }
+        } else {
+          // Error con el ID de la tienda
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Usuario registrado pero ID de tienda inválido para asignación'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 4),
+            ),
+          );
+          
+          // Agregar el usuario a la lista de todos modos
+          widget.onUserRegistered(newUser);
+        }
+        
+        // Limpiar los campos del formulario
+        cleanUser();
+        
+        // Cerrar el diálogo
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() { _isSubmitting = false; });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      title: Text(
+        'Register New User',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: Container(
+        width: 400,
+        height: 500,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // First Name
+                TextFormField(
+                  controller: _firstNameController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('First Name'),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'First name is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Last Name
+                TextFormField(
+                  controller: _lastNameController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('Last Name'),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Last name is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Email
+                TextFormField(
+                  controller: _emailController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('Email'),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Email is required';
+                    }
+                    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value.trim())) {
+                      return 'Invalid email format';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Password
+                TextFormField(
+                  controller: _passwordController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Address
+                TextFormField(
+                  controller: _addressController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('Address'),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Address is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Country
+                CountryDropdownFormField(
+                  value: _selectedCountry,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCountry = newValue ?? 'spain';
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Age
+                TextFormField(
+                  controller: _ageController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('Age'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Age is required';
+                    }
+                    final age = int.tryParse(value.trim());
+                    if (age == null || age <= 0) {
+                      return 'Age must be a positive number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Gender
+                DropdownButtonFormField<String>(
+                  value: _gender,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  decoration: _getInputDecoration('Gender'),
+                  items: const [
+                    DropdownMenuItem(value: 'M', child: Text('Male')),
+                    DropdownMenuItem(value: 'F', child: Text('Female')),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _gender = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a gender';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                
+                // Roles
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Roles:', 
+                      style: TextStyle(
+                        fontSize: 16, 
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      children: _allowedRoles.map((role) {
+                        final isSelected = _selectedRoles.contains(role);
+                        return FilterChip(
+                          label: Text(
+                            role.toUpperCase(),
+                            style: TextStyle(
+                              color: isSelected 
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          selected: isSelected,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                          onSelected: (bool selected) {
+                            setState(() {
+                              if (selected) {
+                                _selectedRoles.add(role);
+                              } else {
+                                _selectedRoles.remove(role);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
+          ),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _isSubmitting ? null : _handleSubmit,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _isSubmitting 
+                ? Theme.of(context).colorScheme.surfaceVariant
+                : Theme.of(context).colorScheme.primary,
+            foregroundColor: _isSubmitting
+                ? Theme.of(context).colorScheme.onSurfaceVariant
+                : Theme.of(context).colorScheme.onPrimary,
+            elevation: _isSubmitting ? 0 : 2,
+          ),
+          child: _isSubmitting
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('Saving...'),
+                  ],
+                )
+              : const Text('Register'),
+        ),
+      ],
+    );
   }
 }

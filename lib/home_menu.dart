@@ -7,12 +7,12 @@ import 'features/auth/services/navigation_guard.dart';
 import 'features/settings/pages/settings_page.dart';
 import 'features/users/pages/register_user_page.dart';
 import 'features/users/pages/users_list_page.dart';
-import 'features/tables/pages/tables_list_page.dart';
 import 'features/tables/pages/register_table_page.dart';
 import 'dashboard_page.dart';
 import 'features/auth/pages/profile_page.dart';
 import 'select_store_page.dart';
 import 'l10n/app_localizations.dart';
+import 'providers/store_provider.dart';
 
 class HomeMenu extends StatefulWidget {
   const HomeMenu({super.key});
@@ -43,7 +43,6 @@ class _HomeMenuState extends State<HomeMenu> {
     _SelectStorePage(),       // 4 - Select Store
     _StoresListPage(),        // 5 - Stores List
     _RegisterTablePage(),     // 6 - Register Table
-    _TablesListPage(),        // 7 - Tables List
     RegisterUserPage(),       // 8 - Register User
     UsersListPage(),          // 9 - Users List
     _SelectStoreForUsersPage(), // 10 - Select Store for Users
@@ -51,7 +50,7 @@ class _HomeMenuState extends State<HomeMenu> {
 
   void _onNavTap(int index) {
     // Verificar si el usuario intenta acceder a páginas de usuario sin ser admin
-    if ((index == 8 || index == 9 || index == 10) && !context.read<AuthProvider>().isAdmin) {
+    if ((index == 7 || index == 8 || index == 9) && !context.read<AuthProvider>().isAdmin) {
       // Si no es admin, no permitir acceso a páginas de usuario
       return;
     }
@@ -133,6 +132,25 @@ class _HomeMenuState extends State<HomeMenu> {
             _ => l10n.home,
           },
         ),
+        actions: [
+          Consumer<StoreProvider>(
+            builder: (context, storeProvider, child) {
+              if (storeProvider.selectedStore != null) {
+                return IconButton(
+                  onPressed: () async {
+                    // Recargar tiendas con el contexto de autenticación actual
+                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                    await storeProvider.loadStores(authProvider: authProvider);
+                    await storeProvider.showStoreSelector(context);
+                  },
+                  icon: const Icon(Icons.store),
+                  tooltip: 'Cambiar Tienda',
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -395,14 +413,6 @@ class _RegisterTablePage extends StatelessWidget {
   }
 }
 
-class _TablesListPage extends StatelessWidget {
-  const _TablesListPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const TablesListPage();
-  }
-}
 
 class _SelectStoreForUsersPage extends StatelessWidget {
   const _SelectStoreForUsersPage();

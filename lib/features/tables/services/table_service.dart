@@ -57,7 +57,7 @@ class TableService {
       }
 
       // Validar estado válido
-      final validStatuses = ['available', 'occupied', 'reserved', 'maintenance'];
+      final validStatuses = ['free', 'occupied', 'reserved'];
       if (!validStatuses.contains(status.trim().toLowerCase())) {
         return TableRegistrationResult.error('El estado debe ser: disponible, ocupada, reservada o mantenimiento');
       }
@@ -174,7 +174,7 @@ class TableService {
   Future<List<TableInfo>> getTablesByStore(String storeId) async {
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/tables/store/$storeId"),
+        Uri.parse("$baseUrl/tables?storeId=$storeId"),
         headers: await _getAuthHeaders(),
       ).timeout(const Duration(seconds: 15));
 
@@ -248,9 +248,9 @@ class TableService {
       }
 
       // Validar estado válido
-      final validStatuses = ['available', 'occupied', 'reserved', 'maintenance'];
+      final validStatuses = ['free', 'occupied', 'reserved'];
       if (!validStatuses.contains(status.trim().toLowerCase())) {
-        return TableRegistrationResult.error('El estado debe ser: disponible, ocupada, reservada o mantenimiento');
+        return TableRegistrationResult.error('El estado debe ser: libre, ocupada o reservada');
       }
 
       // Preparar datos para enviar

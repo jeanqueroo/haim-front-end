@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../services/store_service.dart';
 import '../../auth/services/auth_service.dart';
 import 'store_workers_page.dart';
+import '../../../providers/store_provider.dart';
 
 class SelectStoreForUsersPage extends StatefulWidget {
   const SelectStoreForUsersPage({super.key});
@@ -140,10 +142,14 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
   }
 
   void _selectStore(StoreInfo store) {
+    // Seleccionar la tienda en el provider global
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    storeProvider.selectStore(store);
+    
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StoreWorkersPage(store: store),
+        builder: (context) => const StoreWorkersPage(),
       ),
     );
   }

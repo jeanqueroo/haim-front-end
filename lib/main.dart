@@ -8,6 +8,7 @@ import 'features/auth/widgets/session_guard.dart';
 import 'features/auth/pages/login_page.dart';
 import 'home_menu.dart';
 import 'l10n/app_localizations.dart';
+import 'providers/store_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,12 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<LanguageService>(
           create: (_) => LanguageService(),
+        ),
+        ChangeNotifierProvider<StoreProvider>(
+          create: (context) {
+            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+            return StoreProvider()..initialize(authProvider: authProvider);
+          },
         ),
       ],
       child: Consumer<LanguageService>(

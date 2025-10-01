@@ -32,34 +32,47 @@ class UserService {
     BuildContext? context,
   }) async {
     try {
-      final body = jsonEncode({
+      final request = {
         'userId': userId,
         'isPrimary': isPrimary,
-      });
+      };
 
       final response = await _httpInterceptor.post(
         '$baseUrl/stores/$storeId/users',
-        body: body,
+        body: jsonEncode(request),
         context: context,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
+        
         return UserStoreAssignmentResult.success(
-          id: data['id'],
-          storeId: data['storeId'],
-          userId: data['userId'],
-          isPrimary: data['isPrimary'],
-          status: data['status'],
+          id: data['id'] ?? 0,
+          storeId: data['storeId'] ?? storeId,
+          userId: data['userId'] ?? userId,
+          isPrimary: data['isPrimary'] ?? isPrimary,
+          status: data['status'] ?? 'active',
           joinedAt: data['joinedAt'] != null 
               ? DateTime.tryParse(data['joinedAt']) 
               : null,
         );
       } else {
-        final errorData = jsonDecode(response.body);
-        return UserStoreAssignmentResult.error(
-          errorData['message'] ?? 'Error al agregar usuario a la tienda'
-        );
+        try {
+          final errorData = jsonDecode(response.body);
+          String errorMessage = 'Error al agregar usuario a la tienda';
+          
+          if (errorData is Map) {
+            errorMessage = errorData['message'] ?? errorMessage;
+          } else if (errorData is String) {
+            errorMessage = errorData;
+          }
+          
+          return UserStoreAssignmentResult.error(errorMessage);
+        } catch (e) {
+          return UserStoreAssignmentResult.error(
+            'Error del servidor (${response.statusCode})'
+          );
+        }
       }
     } catch (e) {
       return UserStoreAssignmentResult.error('Error de conexión: $e');
@@ -80,9 +93,14 @@ class UserService {
     BuildContext? context,
   }) async {
     try {
+      if (userIds.isEmpty) {
+        return BulkUserStoreAssignmentResult.error('No se proporcionaron IDs de usuarios');
+      }
+
       final results = <UserStoreAssignmentResult>[];
       final errors = <String>[];
 
+      // Agregar cada usuario individualmente usando el endpoint individual
       for (final userId in userIds) {
         final result = await addUserToStore(
           storeId: storeId,
@@ -90,7 +108,7 @@ class UserService {
           isPrimary: isPrimary,
           context: context,
         );
-        
+
         if (result.isSuccess) {
           results.add(result);
         } else {
@@ -320,6 +338,30 @@ class UserService {
     }
   }
 
+  /// Obtiene los usuarios asociados a una tienda con información completa
+  /// 
+  /// [storeId] - ID de la tienda
+  /// 
+  /// Retorna una lista de [UserInfo] con los usuarios de la tienda
+  Future<List<UserInfo>> getStoreUsers(int storeId, {BuildContext? context}) async {
+    try {
+      final response = await _httpInterceptor.get(
+        "$baseUrl/stores/$storeId/users/with-info",
+        context: context,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data.map((userData) => UserInfo.fromJson(userData['user'])).toList();
+        } 
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Busca usuarios por nombre, email o rol
   Future<List<UserInfo>> searchUsers(String query) async {
     try {
@@ -365,6 +407,55 @@ class UserService {
       return [];
     } catch (e) {
       return [];
+    }
+  }
+
+  /// Elimina un usuario de una tienda
+  /// 
+  /// [storeId] - ID de la tienda
+  /// [userId] - ID del usuario
+  /// 
+  /// Retorna un [UserStoreAssignmentResult] con el resultado de la eliminación
+  Future<UserStoreAssignmentResult> removeUserFromStore({
+    required int storeId,
+    required int userId,
+    BuildContext? context,
+  }) async {
+    try {
+      final response = await _httpInterceptor.delete(
+        '$baseUrl/stores/$storeId/users/$userId',
+        context: context,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return UserStoreAssignmentResult.success(
+          id: 0, // No hay ID específico para eliminación
+          storeId: storeId,
+          userId: userId,
+          isPrimary: false,
+          status: 'removed',
+          joinedAt: null,
+        );
+      } else {
+        try {
+          final errorData = jsonDecode(response.body);
+          String errorMessage = 'Error al eliminar usuario de la tienda';
+          
+          if (errorData is Map) {
+            errorMessage = errorData['message'] ?? errorMessage;
+          } else if (errorData is String) {
+            errorMessage = errorData;
+          }
+          
+          return UserStoreAssignmentResult.error(errorMessage);
+        } catch (e) {
+          return UserStoreAssignmentResult.error(
+            'Error del servidor (${response.statusCode})'
+          );
+        }
+      }
+    } catch (e) {
+      return UserStoreAssignmentResult.error('Error de conexión: $e');
     }
   }
 
