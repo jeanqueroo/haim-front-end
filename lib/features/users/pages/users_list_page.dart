@@ -55,7 +55,7 @@ class _UsersListPageState extends State<UsersListPage> {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.errorLoadingUsers}: ${e.toString()}'),
+            content: Text('${l10n?.errorLoadingUsers ?? 'Error loading users'}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -99,12 +99,12 @@ class _UsersListPageState extends State<UsersListPage> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.registeredUsers),
+        title: Text(l10n?.registeredUsers ?? 'Registered Users'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadUsers,
-            tooltip: l10n.refresh,
+            tooltip: l10n?.refresh ?? 'Refresh',
           ),
         ],
       ),
@@ -120,7 +120,7 @@ class _UsersListPageState extends State<UsersListPage> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: l10n.searchUsers,
+                    hintText: l10n?.searchUsers ?? 'Search users...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -145,7 +145,7 @@ class _UsersListPageState extends State<UsersListPage> {
                 Row(
                   children: [
                     Text(
-                      l10n.filterByRole,
+                      l10n?.filterByRole ?? 'Filter by role',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -153,7 +153,7 @@ class _UsersListPageState extends State<UsersListPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _selectedRole,
+                        initialValue: _selectedRole,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -167,16 +167,16 @@ class _UsersListPageState extends State<UsersListPage> {
                           String displayName;
                           switch (role) {
                             case 'all':
-                              displayName = l10n.allRoles;
+                              displayName = l10n?.allRoles ?? 'All roles';
                               break;
                             case 'admin':
-                              displayName = l10n.admin;
+                              displayName = l10n?.admin ?? 'Administrator';
                               break;
                             case 'vendedor':
-                              displayName = l10n.vendedor;
+                              displayName = l10n?.vendedor ?? 'Salesperson';
                               break;
                             case 'user':
-                              displayName = l10n.user;
+                              displayName = l10n?.user ?? 'User';
                               break;
                             default:
                               displayName = role;
@@ -212,8 +212,8 @@ class _UsersListPageState extends State<UsersListPage> {
                             const SizedBox(height: 16),
                             Text(
                               _searchQuery.isNotEmpty || _selectedRole != 'all'
-                                  ? l10n.noUsersFound
-                                  : l10n.noUsersRegistered,
+                                  ? l10n?.noUsersFound ?? 'No users found'
+                                  : l10n?.noUsersRegistered ?? 'No users registered',
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Colors.grey[600],
                               ),
@@ -226,7 +226,7 @@ class _UsersListPageState extends State<UsersListPage> {
                                   _onSearchChanged('');
                                   _onRoleChanged('all');
                                 },
-                                child: Text(l10n.clearFilters),
+                                child: Text(l10n?.clearFilters ?? 'Clear filters'),
                               ),
                             ],
                           ],
@@ -237,7 +237,7 @@ class _UsersListPageState extends State<UsersListPage> {
                         itemCount: _filteredUsers.length,
                         itemBuilder: (context, index) {
                           final user = _filteredUsers[index];
-                          return _buildUserCard(user, l10n);
+                          return _buildUserCard(user, l10n!);
                         },
                       ),
           ),
@@ -254,8 +254,8 @@ class _UsersListPageState extends State<UsersListPage> {
             _loadUsers();
           });
         },
+        tooltip: l10n?.registerUser ?? 'Register User',
         child: const Icon(Icons.person_add),
-        tooltip: l10n.registerUser,
       ),
     );
   }
@@ -320,7 +320,7 @@ class _UsersListPageState extends State<UsersListPage> {
                         children: [
                           const Icon(Icons.visibility),
                           const SizedBox(width: 8),
-                          Text(l10n.viewDetails),
+                          Text(l10n?.viewDetails ?? 'View Details'),
                         ],
                       ),
                     ),
@@ -527,7 +527,7 @@ class _UsersListPageState extends State<UsersListPage> {
       _loadUsers();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.userUpdatedSuccessfully),
+          content: Text(l10n?.userUpdatedSuccessfully ?? 'User updated successfully'),
           backgroundColor: Colors.green,
         ),
       );

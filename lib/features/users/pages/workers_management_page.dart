@@ -146,19 +146,19 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(l10n.deleteUser),
-          content: Text('${l10n.confirmDeleteUser} ${user.firstName} ${user.lastName}?'),
+          title: Text(l10n?.deleteUser ?? 'Delete User'),
+          content: Text('${l10n?.confirmDeleteUser ?? 'Are you sure you want to delete'} ${user.firstName} ${user.lastName}?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel),
+              child: Text(l10n?.cancel ?? 'Cancel'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteWorker(user.id);
               },
-              child: Text(l10n.delete),
+              child: Text(l10n?.delete ?? 'Delete'),
             ),
           ],
         );
@@ -173,7 +173,7 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
       // await _userService.deleteUser(userId);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.userDeletedSuccessfully),
+          content: Text(l10n?.userDeletedSuccessfully ?? 'User deleted successfully'),
           backgroundColor: Colors.green,
         ),
       );
@@ -181,7 +181,7 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.errorDeletingUser}: $e'),
+          content: Text('${l10n?.errorDeletingUser ?? 'Error deleting user'}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -194,18 +194,18 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${l10n.workersForStore}: ${widget.store.name}'),
+        title: Text('${l10n?.workersForStore ?? 'Workers for Store'}: ${widget.store.name}'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             onPressed: _loadWorkers,
             icon: const Icon(Icons.refresh),
-            tooltip: l10n.refresh,
+            tooltip: l10n?.refresh ?? 'Refresh',
           ),
           PopupMenuButton<String>(
             onSelected: (String value) {
               if (value == 'filter') {
-                _showFilterDialog(l10n);
+                _showFilterDialog(l10n!);
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -215,7 +215,7 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
                   children: [
                     const Icon(Icons.filter_list),
                     const SizedBox(width: 8),
-                    Text(l10n.filters),
+                    Text(l10n?.filters ?? 'Filters'),
                   ],
                 ),
               ),
@@ -231,7 +231,7 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: l10n.searchWorkers,
+                hintText: l10n?.searchWorkers ?? 'Search workers...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -260,12 +260,12 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
                       children: [
                         if (_selectedRole != null)
                           Chip(
-                            label: Text('${l10n.roles}: ${_getRoleName(_selectedRole!, l10n)}'),
+                            label: Text('${l10n?.roles ?? 'Roles'}: ${_getRoleName(_selectedRole!, l10n!)}'),
                             onDeleted: () => _onRoleFilterChanged(null),
                           ),
                         if (_searchQuery.isNotEmpty)
                           Chip(
-                            label: Text('${l10n.searchUsers}: "$_searchQuery"'),
+                            label: Text('${l10n?.searchUsers ?? 'Search Users'}: "$_searchQuery"'),
                             onDeleted: () {
                               _searchController.clear();
                               _onSearchChanged();
@@ -276,7 +276,7 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
                   ),
                   TextButton(
                     onPressed: _clearFilters,
-                    child: Text(l10n.clearFilters),
+                    child: Text(l10n?.clearFilters ?? 'Clear Filters'),
                   ),
                 ],
               ),
@@ -284,14 +284,14 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
 
           // Contenido principal
           Expanded(
-            child: _buildBody(l10n),
+            child: _buildBody(l10n!),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToRegisterWorker,
-        child: const Icon(Icons.person_add),
         tooltip: l10n.addWorker,
+        child: const Icon(Icons.person_add),
       ),
     );
   }
@@ -489,7 +489,7 @@ class _WorkersManagementPageState extends State<WorkersManagementPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: _selectedRole,
+                initialValue: _selectedRole,
                 decoration: InputDecoration(
                   labelText: l10n.filterByRole,
                   border: const OutlineInputBorder(),

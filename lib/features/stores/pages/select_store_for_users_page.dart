@@ -160,18 +160,18 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.selectStoreForUsers),
+        title: Text(l10n?.selectStoreForUsers ?? 'Select Store for Users'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             onPressed: _loadStores,
             icon: const Icon(Icons.refresh),
-            tooltip: l10n.refresh,
+            tooltip: l10n?.refresh ?? 'Refresh',
           ),
           PopupMenuButton<String>(
             onSelected: (String value) {
               if (value == 'filter') {
-                _showFilterDialog(l10n);
+                _showFilterDialog(l10n!);
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -181,7 +181,7 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
                   children: [
                     const Icon(Icons.filter_list),
                     const SizedBox(width: 8),
-                    Text(l10n.filters),
+                    Text(l10n?.filters ?? 'Filters'),
                   ],
                 ),
               ),
@@ -197,7 +197,7 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: l10n.searchStores,
+                hintText: l10n?.searchStores ?? 'Search stores...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -225,17 +225,17 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
                       children: [
                         if (_selectedStoreType != null)
                           Chip(
-                            label: Text('${l10n.storeType}: ${_getStoreTypeName(_selectedStoreType!, l10n)}'),
+                            label: Text('${l10n?.storeType ?? 'Store Type'}: ${_getStoreTypeName(_selectedStoreType!, l10n!)}'),
                             onDeleted: () => _onStoreTypeFilterChanged(null),
                           ),
                         if (_selectedCountry != null)
                           Chip(
-                            label: Text('${l10n.country}: ${_getCountryName(_selectedCountry!, l10n)}'),
+                            label: Text('${l10n?.country ?? 'Country'}: ${_getCountryName(_selectedCountry!, l10n!)}'),
                             onDeleted: () => _onCountryFilterChanged(null),
                           ),
                         if (_searchQuery.isNotEmpty)
                           Chip(
-                            label: Text('${l10n.search}: "$_searchQuery"'),
+                            label: Text('${l10n?.search ?? 'Search'}: "$_searchQuery"'),
                             onDeleted: () {
                               _searchController.clear();
                               _onSearchChanged();
@@ -246,7 +246,7 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
                   ),
                   TextButton(
                     onPressed: _clearFilters,
-                    child: Text(l10n.clearFilters),
+                    child: Text(l10n?.clearFilters ?? 'Clear Filters'),
                   ),
                 ],
               ),
@@ -254,7 +254,7 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
 
           // Contenido principal
           Expanded(
-            child: _buildBody(l10n),
+            child: _buildBody(l10n!),
           ),
         ],
       ),
@@ -465,7 +465,7 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
             children: [
               // Filtro por tipo de tienda
               DropdownButtonFormField<String>(
-                value: _selectedStoreType,
+                initialValue: _selectedStoreType,
                 decoration: InputDecoration(
                   labelText: l10n.storeType,
                   border: const OutlineInputBorder(),
@@ -497,7 +497,7 @@ class _SelectStoreForUsersPageState extends State<SelectStoreForUsersPage> {
               const SizedBox(height: 16),
               // Filtro por país
               DropdownButtonFormField<String>(
-                value: _selectedCountry,
+                initialValue: _selectedCountry,
                 decoration: InputDecoration(
                   labelText: l10n.country,
                   border: const OutlineInputBorder(),

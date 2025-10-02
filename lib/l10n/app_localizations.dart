@@ -1,794 +1,1597 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class AppLocalizations {
-  final Locale locale;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
 
-  AppLocalizations(this.locale);
+import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 
-  static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
-  // Textos en español
-  static const Map<String, String> _es = {
-    'appTitle': 'Haim App',
-    'registerUser': 'Registrar Usuario',
-    'email': 'Email',
-    'password': 'Contraseña',
-    'firstName': 'Nombre',
-    'lastName': 'Apellidos',
-    'address': 'Dirección',
-    'country': 'País',
-    'age': 'Edad',
-    'gender': 'Sexo',
-    'roles': 'Roles',
-    'male': 'Masculino',
-    'female': 'Femenino',
-    'other': 'Otro',
-    'admin': 'Administrador',
-    'vendedor': 'Vendedor',
-    'user': 'Usuario',
-    'register': 'Registrar',
-    'registering': 'Registrando...',
-    'required': 'Obligatorio',
-    'invalidEmail': 'Email no válido',
-    'passwordMinLength': 'Mínimo 6 caracteres',
-    'mustBeNumber': 'Debe ser número',
-    'mustBeGreaterThanZero': 'Debe ser mayor a 0',
-    'selectGender': 'Selecciona el sexo',
-    'selectAtLeastOneRole': 'Selecciona al menos un rol',
-    'checkEmailAvailability': 'Verificar disponibilidad del email',
-    'emailAlreadyRegistered': 'Este email ya está registrado',
-    'errorCheckingEmail': 'Error al verificar email',
-    'unexpectedError': 'Error inesperado',
-    'selectLanguage': 'Seleccionar idioma',
-    'language': 'Idioma',
-    'spanish': 'Español',
-    'english': 'English',
-    'login': 'Iniciar Sesión',
-    'welcome': 'Bienvenido',
-    'dashboard': 'Panel de Control',
-    'settings': 'Configuración',
-    'home': 'Inicio',
-    'profile': 'Perfil',
-    'stores': 'Tiendas',
-    'registerStore': 'Registrar Tienda',
-    'selectStore': 'Seleccionar Tienda',
-    'users': 'Usuarios',
-    'registerProduct': 'Registrar Producto',
-    'logout': 'Cerrar Sesión',
-    'logoutConfirmation': '¿Estás seguro de que quieres cerrar sesión?',
-    'sessionClosed': 'Sesión cerrada',
-    'darkMode': 'Modo Oscuro',
-    'version': 'Versión',
-    'hello': 'Hola',
-    'welcomeToDashboard': 'Bienvenido al Panel de Control',
-    'quickActions': 'Acciones Rápidas',
-    'createNewUser': 'Crear Nuevo Usuario',
-    'viewUsers': 'Ver Usuarios',
-    'manageUsers': 'Gestionar Usuarios',
-    'addNewStore': 'Agregar Nueva Tienda',
-    'addProducts': 'Agregar Productos',
-    'viewStores': 'Ver Tiendas',
-    'manageStores': 'Gestionar Tiendas',
-    'statistics': 'Estadísticas',
-    'products': 'Productos',
-    'sales': 'Ventas',
-    'personalInformation': 'Información Personal',
-    'accountInformation': 'Información de la Cuenta',
-    'userId': 'ID de Usuario',
-    'registeredDate': 'Fecha de Registro',
-    'currentLanguage': 'Idioma Actual',
-    'changeLanguageInSettings': 'Cambiar idioma en Configuración',
-    'accountActions': 'Acciones de la Cuenta',
-    'comingSoon': 'Próximamente',
-    'registerProductDescription': 'Registra nuevos productos en el sistema',
-    'selectLanguageDescription': 'Selecciona tu idioma preferido',
-    'information': 'Información',
-    'languageChangeNote': 'El cambio de idioma se aplicará al reiniciar la aplicación',
-    'editUser': 'Editar Usuario',
-    'firstNameRequired': 'El nombre es obligatorio',
-    'lastNameRequired': 'Los apellidos son obligatorios',
-    'emailRequired': 'El email es obligatorio',
-    'ageRequired': 'La edad es obligatoria',
-    'invalidAge': 'Edad inválida',
-    'saving': 'Guardando...',
-    'rolesRequired': 'Los roles son obligatorios',
-    'errorUpdatingUser': 'Error al actualizar usuario',
-    'registeredUsers': 'Usuarios Registrados',
-    'searchUsers': 'Buscar usuarios...',
-    'filterByRole': 'Filtrar por rol',
-    'allRoles': 'Todos los roles',
-    'noUsersFound': 'No se encontraron usuarios',
-    'noUsersRegistered': 'No hay usuarios registrados',
-    'viewDetails': 'Ver Detalles',
-    'years': 'años',
-    'close': 'Cerrar',
-    'userUpdatedSuccessfully': 'Usuario actualizado exitosamente',
-    'welcomeSubtitle': 'Gestiona tu negocio de manera eficiente',
-    'getStarted': 'Comenzar',
-    'loginToAccess': 'Inicia sesión para acceder',
-    'selectStoreForUsers': 'Seleccionar Tienda para Usuarios',
-    'searchStores': 'Buscar tiendas...',
-    'noStoresFound': 'No se encontraron tiendas',
-    'noStoresRegistered': 'No hay tiendas registradas',
-    'noStoresWithFilters': 'No se encontraron tiendas con los filtros aplicados',
-    'workersForStore': 'Trabajadores de la Tienda',
-    'searchWorkers': 'Buscar trabajadores...',
-    'noWorkersFound': 'No se encontraron trabajadores',
-    'noWorkersInStore': 'No hay trabajadores en esta tienda',
-    'noWorkersWithFilters': 'No se encontraron trabajadores con los filtros aplicados',
-    'addWorker': 'Agregar Trabajador',
-    'addFirstWorker': 'Agregar Primer Trabajador',
-    'deleteUser': 'Eliminar Usuario',
-    'confirmDeleteUser': '¿Estás seguro de que quieres eliminar al usuario',
-    'userDeletedSuccessfully': 'Usuario eliminado exitosamente',
-    'errorDeletingUser': 'Error al eliminar usuario',
-    'phone': 'Teléfono',
-    'allStoreTypes': 'Todos los tipos de tienda',
-    'allCountries': 'Todos los países',
-    'search': 'Búsqueda',
-    'selectedWorker': 'Trabajador Seleccionado',
-    'selectWorkerToViewDetails': 'Selecciona un trabajador para ver sus detalles',
-    'selectedWorkersCount': 'Trabajadores Seleccionados',
-    'selectWorkersToSend': 'Selecciona trabajadores para enviar',
-    'selectWorkersFirst': 'Primero selecciona trabajadores',
-    'confirmSendWorkers': 'Confirmar Envío de Trabajadores',
-    'workersToSend': 'Trabajadores a enviar:',
-    'andMore': 'y {count} más',
-    'send': 'Enviar',
-    'sendSelected': 'Enviar Seleccionados',
-    'workersSentSuccessfully': 'Trabajadores enviados exitosamente',
-    'errorSendingWorkers': 'Error al enviar trabajadores',
-    'clearSelection': 'Limpiar Selección',
-    'selectAll': 'Seleccionar Todos',
-    'someErrorsOccurred': 'Algunos errores ocurrieron',
-    'errorsOccurred': 'Errores Ocurridos',
-    'loginSuccess': 'Inicio de sesión exitoso',
-    'loginError': 'Error al iniciar sesión',
-    'invalidCredentials': 'Credenciales inválidas',
-    'userRegisteredSuccessfully': 'Usuario registrado exitosamente',
-    'registrationError': 'Error al registrar usuario',
-    'connectionError': 'Error de conexión. Verifica tu conexión a internet',
-    'serverError': 'Error del servidor',
-    'tryAgain': 'Intentar de nuevo',
-    'cancel': 'Cancelar',
-    'save': 'Guardar',
-    'edit': 'Editar',
-    'delete': 'Eliminar',
-    'confirm': 'Confirmar',
-    'yes': 'Sí',
-    'no': 'No',
-    'spain': 'España',
-    'unitedStates': 'Estados Unidos',
-    'countryRequired': 'El país es obligatorio',
-    'storeType': 'Tipo de tienda',
-    'selectStoreType': 'Selecciona un tipo de tienda',
-    'truck': 'Camión',
-    'store': 'Tienda',
-    'supermarket': 'Supermercado',
-    'restaurant': 'Restaurante',
-    'storeTypeRequired': 'El tipo de tienda es obligatorio',
-    'storeAddress': 'Dirección de la tienda',
-    'storeAddressHint': 'Ej: Calle Principal 123',
-    'storeCountry': 'País',
-    'storeCountryHint': 'Selecciona el país',
-    'storePhone': 'Número de teléfono',
-    'storePhoneHint': 'Ej: +1 234 567 8900',
-    'addressRequired': 'La dirección es obligatoria',
-    'phoneRequired': 'El número de teléfono es obligatorio',
-    'invalidPhone': 'Formato de teléfono inválido',
-    'tables': 'Mesas',
-    'registerTable': 'Registrar Mesa',
-    'tableNumber': 'Número de mesa',
-    'capacity': 'Capacidad',
-    'tableStatus': 'Estado de la mesa',
-    'available': 'Disponible',
-    'occupied': 'Ocupada',
-    'reserved': 'Reservada',
-    'maintenance': 'Mantenimiento',
-    'tableNumberRequired': 'El número de mesa es obligatorio',
-    'capacityRequired': 'La capacidad es obligatoria',
-    'statusRequired': 'El estado de la mesa es obligatorio',
-    'storeRequired': 'La tienda es obligatoria',
-    'tableRegisteredSuccessfully': 'Mesa registrada exitosamente',
-    'tableUpdatedSuccessfully': 'Mesa actualizada exitosamente',
-    'tableDeletedSuccessfully': 'Mesa eliminada exitosamente',
-    'registeringTable': 'Registrando mesa...',
-    'updatingTable': 'Actualizando mesa...',
-    'tableList': 'Lista de Mesas',
-    'searchTables': 'Buscar mesas...',
-    'noTablesFound': 'No se encontraron mesas',
-    'addTable': 'Agregar Mesa',
-    'editTable': 'Editar Mesa',
-    'deleteTable': 'Eliminar Mesa',
-    'confirmDeleteTable': '¿Estás seguro de que quieres eliminar esta mesa?',
-    'tableCapacity': 'Capacidad de la mesa',
-    'tableStatusAvailable': 'Disponible',
-    'tableStatusOccupied': 'Ocupada',
-    'tableStatusReserved': 'Reservada',
-    'tableStatusMaintenance': 'Mantenimiento',
-    'tableNumberHint': 'Ej: 1, 2, 3...',
-    'capacityHint': 'Ej: 4, 6, 8...',
-    'selectStatus': 'Selecciona un estado',
-    'searchStore': 'Buscar y seleccionar tienda',
-    'clearForm': 'Limpiar formulario',
-    'resetForm': 'Restaurar valores originales',
-    'updating': 'Actualizando...',
-    'updateTable': 'Actualizar Mesa',
-    'tableNumberExample': 'Ej: 1, 2, 3...',
-    'capacityExample': 'Ej: 4, 6, 8...',
-    'tableNumberLabel': 'Número de mesa',
-    'capacityLabel': 'Capacidad',
-    'statusLabel': 'Estado de la mesa',
-    'storeLabel': 'Tienda',
-    'registerNewTable': 'Registra una nueva mesa',
-    'completeTableInfo': 'Completa la información de la mesa',
-    'editTableTitle': 'Editar mesa: #',
-    'modifyTableInfo': 'Modifica la información de la mesa',
-    'tableNumberValidation': 'El número de mesa debe ser un número válido',
-    'tableNumberPositive': 'El número de mesa debe ser mayor a 0',
-    'capacityValidation': 'La capacidad debe ser un número válido',
-    'capacityPositive': 'La capacidad debe ser mayor a 0',
-    'capacityMax': 'La capacidad no puede ser mayor a 20 personas',
-    'tableCreated': 'Mesa creada exitosamente',
-    'tableModified': 'Mesa modificada exitosamente',
-    'formCleared': 'Formulario limpiado correctamente',
-    'formRestored': 'Formulario restaurado a los valores originales',
-    'loadingStores': 'Cargando tiendas...',
-    'errorLoadingStores': 'Error al cargar tiendas',
-    'errorLoadingUsers': 'Error al cargar usuarios',
-    'retry': 'Reintentar',
-    'refresh': 'Actualizar',
-    'filters': 'Filtros',
-    'clearFilters': 'Limpiar filtros',
-    'applyFilters': 'Aplicar filtros',
-    'allStatuses': 'Todos los estados',
-    'noTablesWithFilters': 'No se encontraron mesas con los filtros aplicados',
-    'noTablesRegistered': 'No hay mesas registradas',
-    'tryChangingFilters': 'Intenta cambiar los filtros o limpiar la búsqueda',
-    'tapToAddTable': 'Toca el botón + para agregar una mesa',
-    'tableInfo': 'Información de la mesa',
-    'tableNumberInfo': 'Número de mesa',
-    'capacityInfo': 'Capacidad',
-    'statusInfo': 'Estado',
-    'storeInfo': 'Tienda',
-    'createdAt': 'Creado',
-    'updatedAt': 'Actualizado',
-    'people': 'personas',
-    'table': 'Mesa',
-    'tablesCount': 'mesas',
-    'confirmDelete': 'Confirmar eliminación',
-    'deleteConfirmation': '¿Estás seguro de que quieres eliminar la mesa #',
-  };
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
-  // Textos en inglés
-  static const Map<String, String> _en = {
-    'appTitle': 'Haim App',
-    'registerUser': 'Register User',
-    'email': 'Email',
-    'password': 'Password',
-    'firstName': 'First Name',
-    'lastName': 'Last Name',
-    'address': 'Address',
-    'country': 'Country',
-    'age': 'Age',
-    'gender': 'Gender',
-    'roles': 'Roles',
-    'male': 'Male',
-    'female': 'Female',
-    'other': 'Other',
-    'admin': 'Administrator',
-    'vendedor': 'Salesperson',
-    'user': 'User',
-    'register': 'Register',
-    'registering': 'Registering...',
-    'required': 'Required',
-    'invalidEmail': 'Invalid email',
-    'passwordMinLength': 'Minimum 6 characters',
-    'mustBeNumber': 'Must be a number',
-    'mustBeGreaterThanZero': 'Must be greater than 0',
-    'selectGender': 'Select gender',
-    'selectAtLeastOneRole': 'Select at least one role',
-    'checkEmailAvailability': 'Check email availability',
-    'emailAlreadyRegistered': 'This email is already registered',
-    'errorCheckingEmail': 'Error checking email',
-    'unexpectedError': 'Unexpected error',
-    'selectLanguage': 'Select language',
-    'language': 'Language',
-    'spanish': 'Español',
-    'english': 'English',
-    'login': 'Login',
-    'welcome': 'Welcome',
-    'dashboard': 'Dashboard',
-    'settings': 'Settings',
-    'home': 'Home',
-    'profile': 'Profile',
-    'stores': 'Stores',
-    'registerStore': 'Register Store',
-    'selectStore': 'Select Store',
-    'users': 'Users',
-    'registerProduct': 'Register Product',
-    'logout': 'Logout',
-    'logoutConfirmation': 'Are you sure you want to logout?',
-    'sessionClosed': 'Session closed',
-    'darkMode': 'Dark Mode',
-    'version': 'Version',
-    'hello': 'Hello',
-    'welcomeToDashboard': 'Welcome to Dashboard',
-    'quickActions': 'Quick Actions',
-    'createNewUser': 'Create New User',
-    'viewUsers': 'View Users',
-    'manageUsers': 'Manage Users',
-    'addNewStore': 'Add New Store',
-    'addProducts': 'Add Products',
-    'viewStores': 'View Stores',
-    'manageStores': 'Manage Stores',
-    'statistics': 'Statistics',
-    'products': 'Products',
-    'sales': 'Sales',
-    'personalInformation': 'Personal Information',
-    'accountInformation': 'Account Information',
-    'userId': 'User ID',
-    'registeredDate': 'Registered Date',
-    'currentLanguage': 'Current Language',
-    'changeLanguageInSettings': 'Change language in Settings',
-    'accountActions': 'Account Actions',
-    'comingSoon': 'Coming Soon',
-    'registerProductDescription': 'Register new products in the system',
-    'selectLanguageDescription': 'Select your preferred language',
-    'information': 'Information',
-    'languageChangeNote': 'Language change will apply when restarting the app',
-    'editUser': 'Edit User',
-    'firstNameRequired': 'First name is required',
-    'lastNameRequired': 'Last name is required',
-    'emailRequired': 'Email is required',
-    'ageRequired': 'Age is required',
-    'invalidAge': 'Invalid age',
-    'saving': 'Saving...',
-    'rolesRequired': 'Roles are required',
-    'errorUpdatingUser': 'Error updating user',
-    'registeredUsers': 'Registered Users',
-    'searchUsers': 'Search users...',
-    'filterByRole': 'Filter by role',
-    'allRoles': 'All roles',
-    'noUsersFound': 'No users found',
-    'noUsersRegistered': 'No users registered',
-    'viewDetails': 'View Details',
-    'years': 'years',
-    'close': 'Close',
-    'userUpdatedSuccessfully': 'User updated successfully',
-    'welcomeSubtitle': 'Manage your business efficiently',
-    'getStarted': 'Get Started',
-    'loginToAccess': 'Login to access',
-    'selectStoreForUsers': 'Select Store for Users',
-    'searchStores': 'Search stores...',
-    'noStoresFound': 'No stores found',
-    'noStoresRegistered': 'No stores registered',
-    'noStoresWithFilters': 'No stores found with applied filters',
-    'workersForStore': 'Store Workers',
-    'searchWorkers': 'Search workers...',
-    'noWorkersFound': 'No workers found',
-    'noWorkersInStore': 'No workers in this store',
-    'noWorkersWithFilters': 'No workers found with applied filters',
-    'addWorker': 'Add Worker',
-    'addFirstWorker': 'Add First Worker',
-    'deleteUser': 'Delete User',
-    'confirmDeleteUser': 'Are you sure you want to delete user',
-    'userDeletedSuccessfully': 'User deleted successfully',
-    'errorDeletingUser': 'Error deleting user',
-    'phone': 'Phone',
-    'allStoreTypes': 'All store types',
-    'allCountries': 'All countries',
-    'search': 'Search',
-    'selectedWorker': 'Selected Worker',
-    'selectWorkerToViewDetails': 'Select a worker to view their details',
-    'selectedWorkersCount': 'Selected Workers',
-    'selectWorkersToSend': 'Select workers to send',
-    'selectWorkersFirst': 'First select workers',
-    'confirmSendWorkers': 'Confirm Send Workers',
-    'workersToSend': 'Workers to send:',
-    'andMore': 'and {count} more',
-    'send': 'Send',
-    'sendSelected': 'Send Selected',
-    'workersSentSuccessfully': 'Workers sent successfully',
-    'errorSendingWorkers': 'Error sending workers',
-    'clearSelection': 'Clear Selection',
-    'selectAll': 'Select All',
-    'someErrorsOccurred': 'Some errors occurred',
-    'errorsOccurred': 'Errors Occurred',
-    'loginSuccess': 'Login successful',
-    'loginError': 'Login error',
-    'invalidCredentials': 'Invalid credentials',
-    'userRegisteredSuccessfully': 'User registered successfully',
-    'registrationError': 'Registration error',
-    'connectionError': 'Connection error. Check your internet connection',
-    'serverError': 'Server error',
-    'tryAgain': 'Try again',
-    'cancel': 'Cancel',
-    'save': 'Save',
-    'edit': 'Edit',
-    'delete': 'Delete',
-    'confirm': 'Confirm',
-    'yes': 'Yes',
-    'no': 'No',
-    'spain': 'Spain',
-    'unitedStates': 'United States',
-    'countryRequired': 'Country is required',
-    'storeType': 'Store Type',
-    'selectStoreType': 'Select a store type',
-    'truck': 'Truck',
-    'store': 'Store',
-    'supermarket': 'Supermarket',
-    'restaurant': 'Restaurant',
-    'storeTypeRequired': 'Store type is required',
-    'storeAddress': 'Store Address',
-    'storeAddressHint': 'Ex: Main Street 123',
-    'storeCountry': 'Country',
-    'storeCountryHint': 'Select country',
-    'storePhone': 'Phone Number',
-    'storePhoneHint': 'Ex: +1 234 567 8900',
-    'addressRequired': 'Address is required',
-    'phoneRequired': 'Phone number is required',
-    'invalidPhone': 'Invalid phone format',
-    'tables': 'Tables',
-    'registerTable': 'Register Table',
-    'tableNumber': 'Table Number',
-    'capacity': 'Capacity',
-    'tableStatus': 'Table Status',
-    'available': 'Available',
-    'occupied': 'Occupied',
-    'reserved': 'Reserved',
-    'maintenance': 'Maintenance',
-    'tableNumberRequired': 'Table number is required',
-    'capacityRequired': 'Capacity is required',
-    'statusRequired': 'Table status is required',
-    'storeRequired': 'Store is required',
-    'tableRegisteredSuccessfully': 'Table registered successfully',
-    'tableUpdatedSuccessfully': 'Table updated successfully',
-    'tableDeletedSuccessfully': 'Table deleted successfully',
-    'registeringTable': 'Registering table...',
-    'updatingTable': 'Updating table...',
-    'tableList': 'Tables List',
-    'searchTables': 'Search tables...',
-    'noTablesFound': 'No tables found',
-    'addTable': 'Add Table',
-    'editTable': 'Edit Table',
-    'deleteTable': 'Delete Table',
-    'confirmDeleteTable': 'Are you sure you want to delete this table?',
-    'tableCapacity': 'Table capacity',
-    'tableStatusAvailable': 'Available',
-    'tableStatusOccupied': 'Occupied',
-    'tableStatusReserved': 'Reserved',
-    'tableStatusMaintenance': 'Maintenance',
-    'tableNumberHint': 'Ex: 1, 2, 3...',
-    'capacityHint': 'Ex: 4, 6, 8...',
-    'selectStatus': 'Select a status',
-    'searchStore': 'Search and select store',
-    'clearForm': 'Clear form',
-    'resetForm': 'Reset to original values',
-    'updating': 'Updating...',
-    'updateTable': 'Update Table',
-    'tableNumberExample': 'Ex: 1, 2, 3...',
-    'capacityExample': 'Ex: 4, 6, 8...',
-    'tableNumberLabel': 'Table Number',
-    'capacityLabel': 'Capacity',
-    'statusLabel': 'Table Status',
-    'storeLabel': 'Store',
-    'registerNewTable': 'Register a new table',
-    'completeTableInfo': 'Complete the table information',
-    'editTableTitle': 'Edit table: #',
-    'modifyTableInfo': 'Modify the table information',
-    'tableNumberValidation': 'Table number must be a valid number',
-    'tableNumberPositive': 'Table number must be greater than 0',
-    'capacityValidation': 'Capacity must be a valid number',
-    'capacityPositive': 'Capacity must be greater than 0',
-    'capacityMax': 'Capacity cannot be greater than 20 people',
-    'tableCreated': 'Table created successfully',
-    'tableModified': 'Table modified successfully',
-    'formCleared': 'Form cleared correctly',
-    'formRestored': 'Form restored to original values',
-    'loadingStores': 'Loading stores...',
-    'errorLoadingStores': 'Error loading stores',
-    'errorLoadingUsers': 'Error loading users',
-    'retry': 'Retry',
-    'refresh': 'Refresh',
-    'filters': 'Filters',
-    'clearFilters': 'Clear filters',
-    'applyFilters': 'Apply filters',
-    'allStatuses': 'All statuses',
-    'noTablesWithFilters': 'No tables found with applied filters',
-    'noTablesRegistered': 'No tables registered',
-    'tryChangingFilters': 'Try changing filters or clear the search',
-    'tapToAddTable': 'Tap the + button to add a table',
-    'tableInfo': 'Table information',
-    'tableNumberInfo': 'Table number',
-    'capacityInfo': 'Capacity',
-    'statusInfo': 'Status',
-    'storeInfo': 'Store',
-    'createdAt': 'Created',
-    'updatedAt': 'Updated',
-    'people': 'people',
-    'table': 'Table',
-    'tablesCount': 'tables',
-    'confirmDelete': 'Confirm deletion',
-    'deleteConfirmation': 'Are you sure you want to delete table #',
-  };
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('es')
+  ];
 
-  String get appTitle => _getText('appTitle');
-  String get registerUser => _getText('registerUser');
-  String get email => _getText('email');
-  String get password => _getText('password');
-  String get firstName => _getText('firstName');
-  String get lastName => _getText('lastName');
-  String get address => _getText('address');
-  String get country => _getText('country');
-  String get age => _getText('age');
-  String get gender => _getText('gender');
-  String get roles => _getText('roles');
-  String get male => _getText('male');
-  String get female => _getText('female');
-  String get other => _getText('other');
-  String get admin => _getText('admin');
-  String get vendedor => _getText('vendedor');
-  String get user => _getText('user');
-  String get register => _getText('register');
-  String get registering => _getText('registering');
-  String get required => _getText('required');
-  String get invalidEmail => _getText('invalidEmail');
-  String get passwordMinLength => _getText('passwordMinLength');
-  String get mustBeNumber => _getText('mustBeNumber');
-  String get mustBeGreaterThanZero => _getText('mustBeGreaterThanZero');
-  String get selectGender => _getText('selectGender');
-  String get selectAtLeastOneRole => _getText('selectAtLeastOneRole');
-  String get checkEmailAvailability => _getText('checkEmailAvailability');
-  String get emailAlreadyRegistered => _getText('emailAlreadyRegistered');
-  String get errorCheckingEmail => _getText('errorCheckingEmail');
-  String get unexpectedError => _getText('unexpectedError');
-  String get selectLanguage => _getText('selectLanguage');
-  String get language => _getText('language');
-  String get spanish => _getText('spanish');
-  String get english => _getText('english');
-  String get login => _getText('login');
-  String get welcome => _getText('welcome');
-  String get dashboard => _getText('dashboard');
-  String get settings => _getText('settings');
-  String get home => _getText('home');
-  String get profile => _getText('profile');
-  String get stores => _getText('stores');
-  String get registerStore => _getText('registerStore');
-  String get selectStore => _getText('selectStore');
-  String get users => _getText('users');
-  String get registerProduct => _getText('registerProduct');
-  String get logout => _getText('logout');
-  String get logoutConfirmation => _getText('logoutConfirmation');
-  String get sessionClosed => _getText('sessionClosed');
-  String get darkMode => _getText('darkMode');
-  String get version => _getText('version');
-  String get hello => _getText('hello');
-  String get welcomeToDashboard => _getText('welcomeToDashboard');
-  String get quickActions => _getText('quickActions');
-  String get createNewUser => _getText('createNewUser');
-  String get viewUsers => _getText('viewUsers');
-  String get manageUsers => _getText('manageUsers');
-  String get addNewStore => _getText('addNewStore');
-  String get addProducts => _getText('addProducts');
-  String get viewStores => _getText('viewStores');
-  String get manageStores => _getText('manageStores');
-  String get statistics => _getText('statistics');
-  String get products => _getText('products');
-  String get sales => _getText('sales');
-  String get personalInformation => _getText('personalInformation');
-  String get accountInformation => _getText('accountInformation');
-  String get userId => _getText('userId');
-  String get registeredDate => _getText('registeredDate');
-  String get currentLanguage => _getText('currentLanguage');
-  String get changeLanguageInSettings => _getText('changeLanguageInSettings');
-  String get accountActions => _getText('accountActions');
-  String get comingSoon => _getText('comingSoon');
-  String get registerProductDescription => _getText('registerProductDescription');
-  String get selectLanguageDescription => _getText('selectLanguageDescription');
-  String get information => _getText('information');
-  String get languageChangeNote => _getText('languageChangeNote');
-  String get editUser => _getText('editUser');
-  String get firstNameRequired => _getText('firstNameRequired');
-  String get lastNameRequired => _getText('lastNameRequired');
-  String get emailRequired => _getText('emailRequired');
-  String get ageRequired => _getText('ageRequired');
-  String get invalidAge => _getText('invalidAge');
-  String get saving => _getText('saving');
-  String get rolesRequired => _getText('rolesRequired');
-  String get errorUpdatingUser => _getText('errorUpdatingUser');
-  String get registeredUsers => _getText('registeredUsers');
-  String get searchUsers => _getText('searchUsers');
-  String get filterByRole => _getText('filterByRole');
-  String get allRoles => _getText('allRoles');
-  String get noUsersFound => _getText('noUsersFound');
-  String get noUsersRegistered => _getText('noUsersRegistered');
-  String get viewDetails => _getText('viewDetails');
-  String get years => _getText('years');
-  String get close => _getText('close');
-  String get userUpdatedSuccessfully => _getText('userUpdatedSuccessfully');
-  String get welcomeSubtitle => _getText('welcomeSubtitle');
-  String get getStarted => _getText('getStarted');
-  String get loginToAccess => _getText('loginToAccess');
-  String get selectStoreForUsers => _getText('selectStoreForUsers');
-  String get searchStores => _getText('searchStores');
-  String get noStoresFound => _getText('noStoresFound');
-  String get noStoresRegistered => _getText('noStoresRegistered');
-  String get noStoresWithFilters => _getText('noStoresWithFilters');
-  String get workersForStore => _getText('workersForStore');
-  String get searchWorkers => _getText('searchWorkers');
-  String get noWorkersFound => _getText('noWorkersFound');
-  String get noWorkersInStore => _getText('noWorkersInStore');
-  String get noWorkersWithFilters => _getText('noWorkersWithFilters');
-  String get addWorker => _getText('addWorker');
-  String get addFirstWorker => _getText('addFirstWorker');
-  String get deleteUser => _getText('deleteUser');
-  String get confirmDeleteUser => _getText('confirmDeleteUser');
-  String get userDeletedSuccessfully => _getText('userDeletedSuccessfully');
-  String get errorDeletingUser => _getText('errorDeletingUser');
-  String get phone => _getText('phone');
-  String get allStoreTypes => _getText('allStoreTypes');
-  String get allCountries => _getText('allCountries');
-  String get search => _getText('search');
-  String get selectedWorker => _getText('selectedWorker');
-  String get selectWorkerToViewDetails => _getText('selectWorkerToViewDetails');
-  String get selectedWorkersCount => _getText('selectedWorkersCount');
-  String get selectWorkersToSend => _getText('selectWorkersToSend');
-  String get selectWorkersFirst => _getText('selectWorkersFirst');
-  String get confirmSendWorkers => _getText('confirmSendWorkers');
-  String get workersToSend => _getText('workersToSend');
-  String get andMore => _getText('andMore');
-  String get send => _getText('send');
-  String get sendSelected => _getText('sendSelected');
-  String get workersSentSuccessfully => _getText('workersSentSuccessfully');
-  String get errorSendingWorkers => _getText('errorSendingWorkers');
-  String get clearSelection => _getText('clearSelection');
-  String get selectAll => _getText('selectAll');
-  String get someErrorsOccurred => _getText('someErrorsOccurred');
-  String get errorsOccurred => _getText('errorsOccurred');
-  String get loginSuccess => _getText('loginSuccess');
-  String get loginError => _getText('loginError');
-  String get invalidCredentials => _getText('invalidCredentials');
-  String get userRegisteredSuccessfully => _getText('userRegisteredSuccessfully');
-  String get registrationError => _getText('registrationError');
-  String get connectionError => _getText('connectionError');
-  String get serverError => _getText('serverError');
-  String get tryAgain => _getText('tryAgain');
-  String get cancel => _getText('cancel');
-  String get save => _getText('save');
-  String get edit => _getText('edit');
-  String get delete => _getText('delete');
-  String get confirm => _getText('confirm');
-  String get yes => _getText('yes');
-  String get no => _getText('no');
-  String get spain => _getText('spain');
-  String get unitedStates => _getText('unitedStates');
-  String get countryRequired => _getText('countryRequired');
-  String get storeType => _getText('storeType');
-  String get selectStoreType => _getText('selectStoreType');
-  String get truck => _getText('truck');
-  String get store => _getText('store');
-  String get supermarket => _getText('supermarket');
-  String get restaurant => _getText('restaurant');
-  String get storeTypeRequired => _getText('storeTypeRequired');
-  String get storeAddress => _getText('storeAddress');
-  String get storeAddressHint => _getText('storeAddressHint');
-  String get storeCountry => _getText('storeCountry');
-  String get storeCountryHint => _getText('storeCountryHint');
-  String get storePhone => _getText('storePhone');
-  String get storePhoneHint => _getText('storePhoneHint');
-  String get addressRequired => _getText('addressRequired');
-  String get phoneRequired => _getText('phoneRequired');
-  String get invalidPhone => _getText('invalidPhone');
-  String get tables => _getText('tables');
-  String get registerTable => _getText('registerTable');
-  String get tableNumber => _getText('tableNumber');
-  String get capacity => _getText('capacity');
-  String get tableStatus => _getText('tableStatus');
-  String get available => _getText('available');
-  String get occupied => _getText('occupied');
-  String get reserved => _getText('reserved');
-  String get maintenance => _getText('maintenance');
-  String get tableNumberRequired => _getText('tableNumberRequired');
-  String get capacityRequired => _getText('capacityRequired');
-  String get statusRequired => _getText('statusRequired');
-  String get storeRequired => _getText('storeRequired');
-  String get tableRegisteredSuccessfully => _getText('tableRegisteredSuccessfully');
-  String get tableUpdatedSuccessfully => _getText('tableUpdatedSuccessfully');
-  String get tableDeletedSuccessfully => _getText('tableDeletedSuccessfully');
-  String get registeringTable => _getText('registeringTable');
-  String get updatingTable => _getText('updatingTable');
-  String get tableList => _getText('tableList');
-  String get searchTables => _getText('searchTables');
-  String get noTablesFound => _getText('noTablesFound');
-  String get addTable => _getText('addTable');
-  String get editTable => _getText('editTable');
-  String get deleteTable => _getText('deleteTable');
-  String get confirmDeleteTable => _getText('confirmDeleteTable');
-  String get tableCapacity => _getText('tableCapacity');
-  String get tableStatusAvailable => _getText('tableStatusAvailable');
-  String get tableStatusOccupied => _getText('tableStatusOccupied');
-  String get tableStatusReserved => _getText('tableStatusReserved');
-  String get tableStatusMaintenance => _getText('tableStatusMaintenance');
-  String get tableNumberHint => _getText('tableNumberHint');
-  String get capacityHint => _getText('capacityHint');
-  String get selectStatus => _getText('selectStatus');
-  String get searchStore => _getText('searchStore');
-  String get clearForm => _getText('clearForm');
-  String get resetForm => _getText('resetForm');
-  String get updating => _getText('updating');
-  String get updateTable => _getText('updateTable');
-  String get tableNumberExample => _getText('tableNumberExample');
-  String get capacityExample => _getText('capacityExample');
-  String get tableNumberLabel => _getText('tableNumberLabel');
-  String get capacityLabel => _getText('capacityLabel');
-  String get statusLabel => _getText('statusLabel');
-  String get storeLabel => _getText('storeLabel');
-  String get registerNewTable => _getText('registerNewTable');
-  String get completeTableInfo => _getText('completeTableInfo');
-  String get editTableTitle => _getText('editTableTitle');
-  String get modifyTableInfo => _getText('modifyTableInfo');
-  String get tableNumberValidation => _getText('tableNumberValidation');
-  String get tableNumberPositive => _getText('tableNumberPositive');
-  String get capacityValidation => _getText('capacityValidation');
-  String get capacityPositive => _getText('capacityPositive');
-  String get capacityMax => _getText('capacityMax');
-  String get tableCreated => _getText('tableCreated');
-  String get tableModified => _getText('tableModified');
-  String get formCleared => _getText('formCleared');
-  String get formRestored => _getText('formRestored');
-  String get loadingStores => _getText('loadingStores');
-  String get errorLoadingStores => _getText('errorLoadingStores');
-  String get errorLoadingUsers => _getText('errorLoadingUsers');
-  String get retry => _getText('retry');
-  String get refresh => _getText('refresh');
-  String get filters => _getText('filters');
-  String get clearFilters => _getText('clearFilters');
-  String get applyFilters => _getText('applyFilters');
-  String get allStatuses => _getText('allStatuses');
-  String get noTablesWithFilters => _getText('noTablesWithFilters');
-  String get noTablesRegistered => _getText('noTablesRegistered');
-  String get tryChangingFilters => _getText('tryChangingFilters');
-  String get tapToAddTable => _getText('tapToAddTable');
-  String get tableInfo => _getText('tableInfo');
-  String get tableNumberInfo => _getText('tableNumberInfo');
-  String get capacityInfo => _getText('capacityInfo');
-  String get statusInfo => _getText('statusInfo');
-  String get storeInfo => _getText('storeInfo');
-  String get createdAt => _getText('createdAt');
-  String get updatedAt => _getText('updatedAt');
-  String get people => _getText('people');
-  String get table => _getText('table');
-  String get tablesCount => _getText('tablesCount');
-  String get confirmDelete => _getText('confirmDelete');
-  String get deleteConfirmation => _getText('deleteConfirmation');
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Haim App'**
+  String get appTitle;
 
-  String _getText(String key) {
-    if (locale.languageCode == 'es') {
-      return _es[key] ?? key;
-    } else {
-      return _en[key] ?? key;
-    }
-  }
+  /// No description provided for @registerUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Register User'**
+  String get registerUser;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get lastName;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
+
+  /// No description provided for @country.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get country;
+
+  /// No description provided for @age.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get age;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @roles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get roles;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// No description provided for @admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator'**
+  String get admin;
+
+  /// No description provided for @vendedor.
+  ///
+  /// In en, this message translates to:
+  /// **'Salesperson'**
+  String get vendedor;
+
+  /// No description provided for @user.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get user;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @registering.
+  ///
+  /// In en, this message translates to:
+  /// **'Registering...'**
+  String get registering;
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email'**
+  String get invalidEmail;
+
+  /// No description provided for @passwordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 6 characters'**
+  String get passwordMinLength;
+
+  /// No description provided for @mustBeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be a number'**
+  String get mustBeNumber;
+
+  /// No description provided for @mustBeGreaterThanZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be greater than 0'**
+  String get mustBeGreaterThanZero;
+
+  /// No description provided for @selectGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Select gender'**
+  String get selectGender;
+
+  /// No description provided for @selectAtLeastOneRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one role'**
+  String get selectAtLeastOneRole;
+
+  /// No description provided for @checkEmailAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Check email availability'**
+  String get checkEmailAvailability;
+
+  /// No description provided for @emailAlreadyRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered'**
+  String get emailAlreadyRegistered;
+
+  /// No description provided for @errorCheckingEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Error checking email'**
+  String get errorCheckingEmail;
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error'**
+  String get unexpectedError;
+
+  /// No description provided for @selectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select language'**
+  String get selectLanguage;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @spanish.
+  ///
+  /// In en, this message translates to:
+  /// **'Español'**
+  String get spanish;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcome;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Login successful'**
+  String get loginSuccess;
+
+  /// No description provided for @loginError.
+  ///
+  /// In en, this message translates to:
+  /// **'Login error'**
+  String get loginError;
+
+  /// No description provided for @invalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid credentials'**
+  String get invalidCredentials;
+
+  /// No description provided for @userRegisteredSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User registered successfully'**
+  String get userRegisteredSuccessfully;
+
+  /// No description provided for @registrationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration error'**
+  String get registrationError;
+
+  /// No description provided for @connectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection error. Check your internet connection'**
+  String get connectionError;
+
+  /// No description provided for @serverError.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error'**
+  String get serverError;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @spain.
+  ///
+  /// In en, this message translates to:
+  /// **'Spain'**
+  String get spain;
+
+  /// No description provided for @unitedStates.
+  ///
+  /// In en, this message translates to:
+  /// **'United States'**
+  String get unitedStates;
+
+  /// No description provided for @countryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Country is required'**
+  String get countryRequired;
+
+  /// No description provided for @storeType.
+  ///
+  /// In en, this message translates to:
+  /// **'Store Type'**
+  String get storeType;
+
+  /// No description provided for @selectStoreType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a store type'**
+  String get selectStoreType;
+
+  /// No description provided for @truck.
+  ///
+  /// In en, this message translates to:
+  /// **'Truck'**
+  String get truck;
+
+  /// No description provided for @store.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get store;
+
+  /// No description provided for @supermarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Supermarket'**
+  String get supermarket;
+
+  /// No description provided for @restaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get restaurant;
+
+  /// No description provided for @storeTypeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Store type is required'**
+  String get storeTypeRequired;
+
+  /// No description provided for @storeAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Store Address'**
+  String get storeAddress;
+
+  /// No description provided for @storeAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: Main Street 123'**
+  String get storeAddressHint;
+
+  /// No description provided for @storeCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get storeCountry;
+
+  /// No description provided for @storeCountryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select country'**
+  String get storeCountryHint;
+
+  /// No description provided for @storePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get storePhone;
+
+  /// No description provided for @storePhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: +1 234 567 8900'**
+  String get storePhoneHint;
+
+  /// No description provided for @addressRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Address is required'**
+  String get addressRequired;
+
+  /// No description provided for @phoneRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number is required'**
+  String get phoneRequired;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone format'**
+  String get invalidPhone;
+
+  /// No description provided for @tables.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables'**
+  String get tables;
+
+  /// No description provided for @registerTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Register Table'**
+  String get registerTable;
+
+  /// No description provided for @tableNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Table Number'**
+  String get tableNumber;
+
+  /// No description provided for @capacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get capacity;
+
+  /// No description provided for @tableStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Table Status'**
+  String get tableStatus;
+
+  /// No description provided for @available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get available;
+
+  /// No description provided for @occupied.
+  ///
+  /// In en, this message translates to:
+  /// **'Occupied'**
+  String get occupied;
+
+  /// No description provided for @reserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get reserved;
+
+  /// No description provided for @maintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get maintenance;
+
+  /// No description provided for @tableNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Table number is required'**
+  String get tableNumberRequired;
+
+  /// No description provided for @capacityRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity is required'**
+  String get capacityRequired;
+
+  /// No description provided for @statusRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Table status is required'**
+  String get statusRequired;
+
+  /// No description provided for @storeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Store is required'**
+  String get storeRequired;
+
+  /// No description provided for @tableRegisteredSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Table registered successfully'**
+  String get tableRegisteredSuccessfully;
+
+  /// No description provided for @tableUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Table updated successfully'**
+  String get tableUpdatedSuccessfully;
+
+  /// No description provided for @tableDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Table deleted successfully'**
+  String get tableDeletedSuccessfully;
+
+  /// No description provided for @registeringTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Registering table...'**
+  String get registeringTable;
+
+  /// No description provided for @updatingTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating table...'**
+  String get updatingTable;
+
+  /// No description provided for @tableList.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables List'**
+  String get tableList;
+
+  /// No description provided for @searchTables.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tables...'**
+  String get searchTables;
+
+  /// No description provided for @noTablesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tables found'**
+  String get noTablesFound;
+
+  /// No description provided for @addTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Table'**
+  String get addTable;
+
+  /// No description provided for @editTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Table'**
+  String get editTable;
+
+  /// No description provided for @deleteTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Table'**
+  String get deleteTable;
+
+  /// No description provided for @confirmDeleteTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this table?'**
+  String get confirmDeleteTable;
+
+  /// No description provided for @tableCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Table capacity'**
+  String get tableCapacity;
+
+  /// No description provided for @tableStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get tableStatusAvailable;
+
+  /// No description provided for @tableStatusOccupied.
+  ///
+  /// In en, this message translates to:
+  /// **'Occupied'**
+  String get tableStatusOccupied;
+
+  /// No description provided for @tableStatusReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get tableStatusReserved;
+
+  /// No description provided for @tableStatusMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get tableStatusMaintenance;
+
+  /// No description provided for @tableNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: 1, 2, 3...'**
+  String get tableNumberHint;
+
+  /// No description provided for @capacityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: 4, 6, 8...'**
+  String get capacityHint;
+
+  /// No description provided for @selectStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a status'**
+  String get selectStatus;
+
+  /// No description provided for @searchStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Search and select store'**
+  String get searchStore;
+
+  /// No description provided for @clearForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form'**
+  String get clearForm;
+
+  /// No description provided for @resetForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to original values'**
+  String get resetForm;
+
+  /// No description provided for @updating.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating...'**
+  String get updating;
+
+  /// No description provided for @updateTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Table'**
+  String get updateTable;
+
+  /// No description provided for @tableNumberExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: 1, 2, 3...'**
+  String get tableNumberExample;
+
+  /// No description provided for @capacityExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: 4, 6, 8...'**
+  String get capacityExample;
+
+  /// No description provided for @tableNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Table Number'**
+  String get tableNumberLabel;
+
+  /// No description provided for @capacityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get capacityLabel;
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Table Status'**
+  String get statusLabel;
+
+  /// No description provided for @storeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get storeLabel;
+
+  /// No description provided for @registerNewTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Register a new table'**
+  String get registerNewTable;
+
+  /// No description provided for @completeTableInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the table information'**
+  String get completeTableInfo;
+
+  /// No description provided for @editTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit table: #'**
+  String get editTableTitle;
+
+  /// No description provided for @modifyTableInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify the table information'**
+  String get modifyTableInfo;
+
+  /// No description provided for @tableNumberValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Table number must be a valid number'**
+  String get tableNumberValidation;
+
+  /// No description provided for @tableNumberPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Table number must be greater than 0'**
+  String get tableNumberPositive;
+
+  /// No description provided for @capacityValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity must be a valid number'**
+  String get capacityValidation;
+
+  /// No description provided for @capacityPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity must be greater than 0'**
+  String get capacityPositive;
+
+  /// No description provided for @capacityMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity cannot be greater than 20 people'**
+  String get capacityMax;
+
+  /// No description provided for @selectStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Store'**
+  String get selectStore;
+
+  /// No description provided for @tableCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Table created successfully'**
+  String get tableCreated;
+
+  /// No description provided for @tableModified.
+  ///
+  /// In en, this message translates to:
+  /// **'Table modified successfully'**
+  String get tableModified;
+
+  /// No description provided for @formCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Form cleared correctly'**
+  String get formCleared;
+
+  /// No description provided for @formRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Form restored to original values'**
+  String get formRestored;
+
+  /// No description provided for @loadingStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading stores...'**
+  String get loadingStores;
+
+  /// No description provided for @errorLoadingStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading stores'**
+  String get errorLoadingStores;
+
+  /// No description provided for @errorLoadingUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading users'**
+  String get errorLoadingUsers;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply filters'**
+  String get applyFilters;
+
+  /// No description provided for @allStatuses.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get allStatuses;
+
+  /// No description provided for @noTablesWithFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No tables found with applied filters'**
+  String get noTablesWithFilters;
+
+  /// No description provided for @noTablesRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'No tables registered'**
+  String get noTablesRegistered;
+
+  /// No description provided for @tryChangingFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Try changing filters or clear the search'**
+  String get tryChangingFilters;
+
+  /// No description provided for @tapToAddTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + button to add a table'**
+  String get tapToAddTable;
+
+  /// No description provided for @tableInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Table information'**
+  String get tableInfo;
+
+  /// No description provided for @tableNumberInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Table number'**
+  String get tableNumberInfo;
+
+  /// No description provided for @capacityInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get capacityInfo;
+
+  /// No description provided for @statusInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get statusInfo;
+
+  /// No description provided for @storeInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get storeInfo;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get createdAt;
+
+  /// No description provided for @updatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get updatedAt;
+
+  /// No description provided for @people.
+  ///
+  /// In en, this message translates to:
+  /// **'people'**
+  String get people;
+
+  /// No description provided for @table.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get table;
+
+  /// No description provided for @tablesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'tables'**
+  String get tablesCount;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get confirmDelete;
+
+  /// No description provided for @deleteConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete table #'**
+  String get deleteConfirmation;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @users.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get users;
+
+  /// No description provided for @stores.
+  ///
+  /// In en, this message translates to:
+  /// **'Stores'**
+  String get stores;
+
+  /// No description provided for @registerStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Register Store'**
+  String get registerStore;
+
+  /// No description provided for @selectStoreForUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Store for Users'**
+  String get selectStoreForUsers;
+
+  /// No description provided for @registerProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Register Product'**
+  String get registerProduct;
+
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirmation;
+
+  /// No description provided for @sessionClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Session closed'**
+  String get sessionClosed;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @information.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get information;
+
+  /// No description provided for @selectLanguageDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred language'**
+  String get selectLanguageDescription;
+
+  /// No description provided for @currentLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Language'**
+  String get currentLanguage;
+
+  /// No description provided for @languageChangeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Language changes will be applied after restarting the app'**
+  String get languageChangeNote;
+
+  /// No description provided for @registeredUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered Users'**
+  String get registeredUsers;
+
+  /// No description provided for @searchUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users...'**
+  String get searchUsers;
+
+  /// No description provided for @filterByRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by role'**
+  String get filterByRole;
+
+  /// No description provided for @allRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'All roles'**
+  String get allRoles;
+
+  /// No description provided for @phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phone;
+
+  /// No description provided for @searchStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Search stores...'**
+  String get searchStores;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @noStoresFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No stores found'**
+  String get noStoresFound;
+
+  /// No description provided for @noStoresRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'No stores registered'**
+  String get noStoresRegistered;
+
+  /// No description provided for @noStoresWithFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No stores found with applied filters'**
+  String get noStoresWithFilters;
+
+  /// No description provided for @allStoreTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'All store types'**
+  String get allStoreTypes;
+
+  /// No description provided for @allCountries.
+  ///
+  /// In en, this message translates to:
+  /// **'All countries'**
+  String get allCountries;
+
+  /// No description provided for @editUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit User'**
+  String get editUser;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @firstNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'First name is required'**
+  String get firstNameRequired;
+
+  /// No description provided for @lastNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name is required'**
+  String get lastNameRequired;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get emailRequired;
+
+  /// No description provided for @ageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Age is required'**
+  String get ageRequired;
+
+  /// No description provided for @invalidAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid age'**
+  String get invalidAge;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @rolesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one role is required'**
+  String get rolesRequired;
+
+  /// No description provided for @errorUpdatingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating user'**
+  String get errorUpdatingUser;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoon;
+
+  /// No description provided for @registerProductDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Product registration functionality will be available soon'**
+  String get registerProductDescription;
+
+  /// No description provided for @noWorkersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No workers found'**
+  String get noWorkersFound;
+
+  /// No description provided for @noWorkersInStore.
+  ///
+  /// In en, this message translates to:
+  /// **'No workers in this store'**
+  String get noWorkersInStore;
+
+  /// No description provided for @selectWorkersToSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Select workers to send'**
+  String get selectWorkersToSend;
+
+  /// No description provided for @noWorkersWithFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No workers found with applied filters'**
+  String get noWorkersWithFilters;
+
+  /// No description provided for @years.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get years;
+
+  /// No description provided for @welcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to our application'**
+  String get welcomeSubtitle;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @loginToAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Login to access'**
+  String get loginToAccess;
+
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello'**
+  String get hello;
+
+  /// No description provided for @welcomeToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Dashboard'**
+  String get welcomeToDashboard;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @createNewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new user'**
+  String get createNewUser;
+
+  /// No description provided for @viewUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'View Users'**
+  String get viewUsers;
+
+  /// No description provided for @manageUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage users'**
+  String get manageUsers;
+
+  /// No description provided for @addNewStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new store'**
+  String get addNewStore;
+
+  /// No description provided for @addProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Add products'**
+  String get addProducts;
+
+  /// No description provided for @viewStores.
+  ///
+  /// In en, this message translates to:
+  /// **'View Stores'**
+  String get viewStores;
+
+  /// No description provided for @manageStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage stores'**
+  String get manageStores;
+
+  /// No description provided for @statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statistics;
+
+  /// No description provided for @products.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get products;
+
+  /// No description provided for @sales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get sales;
+
+  /// No description provided for @accountInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Information'**
+  String get accountInformation;
+
+  /// No description provided for @userId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get userId;
+
+  /// No description provided for @registeredDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered Date'**
+  String get registeredDate;
+
+  /// No description provided for @changeLanguageInSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Change language in settings'**
+  String get changeLanguageInSettings;
+
+  /// No description provided for @accountActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Actions'**
+  String get accountActions;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get noUsersFound;
+
+  /// No description provided for @noUsersWithFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found with applied filters'**
+  String get noUsersWithFilters;
+
+  /// No description provided for @selectWorkersFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select workers first'**
+  String get selectWorkersFirst;
+
+  /// No description provided for @confirmSendWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Send Workers'**
+  String get confirmSendWorkers;
+
+  /// No description provided for @selectedWorkersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Workers'**
+  String get selectedWorkersCount;
+
+  /// No description provided for @workersToSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers to send'**
+  String get workersToSend;
+
+  /// No description provided for @andMore.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more'**
+  String andMore(Object count);
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @errorsOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'Errors Occurred'**
+  String get errorsOccurred;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @workersForStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers for Store'**
+  String get workersForStore;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Selection'**
+  String get clearSelection;
+
+  /// No description provided for @searchWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search workers'**
+  String get searchWorkers;
+
+  /// No description provided for @locale.
+  ///
+  /// In en, this message translates to:
+  /// **'Locale'**
+  String get locale;
+
+  /// No description provided for @noUsersRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'No users registered'**
+  String get noUsersRegistered;
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get viewDetails;
+
+  /// No description provided for @userUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User updated successfully'**
+  String get userUpdatedSuccessfully;
+
+  /// No description provided for @deleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete User'**
+  String get deleteUser;
+
+  /// No description provided for @confirmDeleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete'**
+  String get confirmDeleteUser;
+
+  /// No description provided for @userDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User deleted successfully'**
+  String get userDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting user'**
+  String get errorDeletingUser;
+
+  /// No description provided for @addWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Worker'**
+  String get addWorker;
+
+  /// No description provided for @addFirstWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Add First Worker'**
+  String get addFirstWorker;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) {
-    return ['en', 'es'].contains(locale.languageCode);
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
   }
 
   @override
-  Future<AppLocalizations> load(Locale locale) async {
-    return AppLocalizations(locale);
-  }
+  bool isSupported(Locale locale) =>
+      <String>['en', 'es'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
+  }
+
+  throw FlutterError(
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

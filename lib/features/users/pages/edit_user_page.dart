@@ -89,12 +89,12 @@ class _EditUserPageState extends State<EditUserPage> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.editUser),
+        title: Text(l10n?.editUser ?? 'Edit User'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _isSubmitting ? null : _handleSubmit,
-            tooltip: l10n.save,
+            tooltip: l10n?.save ?? 'Save',
           ),
         ],
       ),
@@ -106,7 +106,7 @@ class _EditUserPageState extends State<EditUserPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Información personal
-              _buildSectionHeader(l10n.personalInformation),
+              _buildSectionHeader(l10n?.personalInformation ?? 'Personal Information'),
               const SizedBox(height: 16),
               
               Row(
@@ -115,13 +115,13 @@ class _EditUserPageState extends State<EditUserPage> {
                     child: TextFormField(
                       controller: _firstNameController,
                       decoration: InputDecoration(
-                        labelText: l10n.firstName,
+                        labelText: l10n?.firstName ?? 'First Name',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.person),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return l10n.firstNameRequired;
+                          return l10n?.firstNameRequired ?? 'First name is required';
                         }
                         return null;
                       },
@@ -132,13 +132,13 @@ class _EditUserPageState extends State<EditUserPage> {
                     child: TextFormField(
                       controller: _lastNameController,
                       decoration: InputDecoration(
-                        labelText: l10n.lastName,
+                        labelText: l10n?.lastName ?? 'Last Name',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.person_outline),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return l10n.lastNameRequired;
+                          return l10n?.lastNameRequired ?? 'Last name is required';
                         }
                         return null;
                       },
@@ -152,18 +152,18 @@ class _EditUserPageState extends State<EditUserPage> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: l10n.email,
+                  labelText: l10n?.email ?? 'Email',
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.email),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return l10n.emailRequired;
+                    return l10n?.emailRequired ?? 'Email is required';
                   }
                   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                   if (!emailRegex.hasMatch(value)) {
-                    return l10n.invalidEmail;
+                    return l10n?.invalidEmail ?? 'Invalid email';
                   }
                   return null;
                 },
@@ -177,18 +177,18 @@ class _EditUserPageState extends State<EditUserPage> {
                     child: TextFormField(
                       controller: _ageController,
                       decoration: InputDecoration(
-                        labelText: l10n.age,
+                        labelText: l10n?.age ?? 'Age',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.cake),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return l10n.ageRequired;
+                          return l10n?.ageRequired ?? 'Age is required';
                         }
                         final age = int.tryParse(value);
                         if (age == null || age <= 0) {
-                          return l10n.invalidAge;
+                          return l10n?.invalidAge ?? 'Invalid age';
                         }
                         return null;
                       },
@@ -197,9 +197,9 @@ class _EditUserPageState extends State<EditUserPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedGender,
+                      initialValue: _selectedGender,
                       decoration: InputDecoration(
-                        labelText: l10n.gender,
+                        labelText: l10n?.gender ?? 'Gender',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.person),
                       ),
@@ -208,15 +208,15 @@ class _EditUserPageState extends State<EditUserPage> {
                         IconData icon;
                         switch (gender) {
                           case 'M':
-                            displayText = l10n.male;
+                            displayText = l10n?.male ?? 'Male';
                             icon = Icons.male;
                             break;
                           case 'F':
-                            displayText = l10n.female;
+                            displayText = l10n?.female ?? 'Female';
                             icon = Icons.female;
                             break;
                           default:
-                            displayText = l10n.male;
+                            displayText = l10n?.male ?? 'Male';
                             icon = Icons.male;
                         }
                         
@@ -239,7 +239,7 @@ class _EditUserPageState extends State<EditUserPage> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return l10n.selectGender;
+                          return l10n?.selectGender ?? 'Select gender';
                         }
                         return null;
                       },
@@ -253,14 +253,14 @@ class _EditUserPageState extends State<EditUserPage> {
               TextFormField(
                 controller: _addressController,
                 decoration: InputDecoration(
-                  labelText: l10n.address,
+                  labelText: l10n?.address ?? 'Address',
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.location_on),
                 ),
                 maxLines: 2,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return l10n.addressRequired;
+                    return l10n?.addressRequired ?? 'Address is required';
                   }
                   return null;
                 },
@@ -277,7 +277,7 @@ class _EditUserPageState extends State<EditUserPage> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return l10n.countryRequired;
+                    return l10n?.countryRequired ?? 'Country is required';
                   }
                   return null;
                 },
@@ -285,7 +285,7 @@ class _EditUserPageState extends State<EditUserPage> {
               const SizedBox(height: 24),
               
               // Roles
-              _buildSectionHeader(l10n.roles),
+              _buildSectionHeader(l10n?.roles ?? 'Roles'),
               const SizedBox(height: 16),
               
               Wrap(
@@ -298,15 +298,15 @@ class _EditUserPageState extends State<EditUserPage> {
                   
                   switch (role) {
                     case 'admin':
-                      roleText = l10n.admin;
+                      roleText = l10n?.admin ?? 'Administrator';
                       roleColor = Colors.red;
                       break;
                     case 'vendedor':
-                      roleText = l10n.vendedor;
+                      roleText = l10n?.vendedor ?? 'Salesperson';
                       roleColor = Colors.blue;
                       break;
                     case 'user':
-                      roleText = l10n.user;
+                      roleText = l10n?.user ?? 'User';
                       roleColor = Colors.green;
                       break;
                     default:
@@ -350,7 +350,7 @@ class _EditUserPageState extends State<EditUserPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.save),
-                  label: Text(_isSubmitting ? l10n.saving : l10n.save),
+                  label: Text(_isSubmitting ? l10n?.saving ?? 'Saving...' : l10n?.save ?? 'Save'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
@@ -382,7 +382,7 @@ class _EditUserPageState extends State<EditUserPage> {
     if (_selectedRoles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).rolesRequired),
+          content: Text(AppLocalizations.of(context)?.rolesRequired ?? 'At least one role is required'),
           backgroundColor: Colors.red,
         ),
       );
@@ -444,7 +444,7 @@ class _EditUserPageState extends State<EditUserPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${AppLocalizations.of(context).errorUpdatingUser}: $e'),
+            content: Text('${AppLocalizations.of(context)?.errorUpdatingUser ?? 'Error updating user'}: $e'),
             backgroundColor: Colors.red,
           ),
         );

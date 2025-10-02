@@ -37,7 +37,7 @@ class _EditStorePageState extends State<EditStorePage> {
 
   // Lista de tipos de tienda con localización
   List<Map<String, String>> _getStoreTypes(AppLocalizations l10n) {
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     return [
       {'key': 'truck', 'value': isSpanish ? 'Camión' : 'Truck'},
@@ -50,7 +50,7 @@ class _EditStorePageState extends State<EditStorePage> {
 
   // Obtener etiquetas localizadas
   Map<String, String> _getLocalizedLabels(AppLocalizations l10n) {
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     return {
       'storeType': isSpanish ? 'Tipo de tienda' : 'Store Type',
@@ -268,10 +268,10 @@ class _EditStorePageState extends State<EditStorePage> {
         String selectedCountryName;
         switch (_selectedCountry) {
           case 'spain':
-            selectedCountryName = l10n.spain;
+            selectedCountryName = l10n?.spain ?? 'Spain';
             break;
           case 'unitedStates':
-            selectedCountryName = l10n.unitedStates;
+            selectedCountryName = l10n?.unitedStates ?? 'United States';
             break;
           default:
             selectedCountryName = _selectedCountry ?? 'País no seleccionado';
@@ -359,10 +359,10 @@ class _EditStorePageState extends State<EditStorePage> {
     
     // Mostrar mensaje de confirmación
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Formulario restaurado a los valores originales'),
         backgroundColor: Colors.blue,
-        duration: const Duration(seconds: 2),
+        duration: Duration(seconds: 2),
       ),
     );
   }
@@ -370,8 +370,8 @@ class _EditStorePageState extends State<EditStorePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final storeTypes = _getStoreTypes(l10n);
-    final labels = _getLocalizedLabels(l10n);
+    final storeTypes = _getStoreTypes(l10n!);
+    final labels = _getLocalizedLabels(l10n!);
     
     return Scaffold(
       appBar: AppBar(
@@ -441,7 +441,7 @@ class _EditStorePageState extends State<EditStorePage> {
 
                   // Campo: Tipo de tienda (Dropdown)
                   DropdownButtonFormField<String>(
-                    value: _selectedStoreType != null && storeTypes.any((type) => type['key'] == _selectedStoreType) 
+                    initialValue: _selectedStoreType != null && storeTypes.any((type) => type['key'] == _selectedStoreType) 
                         ? _selectedStoreType 
                         : null,
                     decoration: InputDecoration(

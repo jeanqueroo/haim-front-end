@@ -63,7 +63,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.emailAlreadyRegistered),
+            content: Text(l10n?.emailAlreadyRegistered ?? 'This email is already registered'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -73,7 +73,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.errorCheckingEmail}: ${e.toString()}'),
+          content: Text('${l10n?.errorCheckingEmail ?? 'Error checking email'}: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -90,13 +90,13 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
     
     if (_gender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.selectGender)),
+        SnackBar(content: Text(l10n?.selectGender ?? 'Select gender')),
       );
       return;
     }
     if (_selectedRoles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.selectAtLeastOneRole)),
+        SnackBar(content: Text(l10n?.selectAtLeastOneRole ?? 'Select at least one role')),
       );
       return;
     }
@@ -151,7 +151,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.unexpectedError}: ${e.toString()}'),
+          content: Text('${l10n?.unexpectedError ?? 'Unexpected error'}: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -167,11 +167,11 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.registerUser),
+        title: Text(l10n?.registerUser ?? 'Register User'),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.language),
-            tooltip: l10n.selectLanguage,
+            tooltip: l10n?.selectLanguage ?? 'Select Language',
             onSelected: (String languageCode) {
               languageService.changeLanguageByCode(languageCode);
             },
@@ -211,7 +211,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: l10n.email,
+                    labelText: l10n?.email ?? 'Email',
                     border: const OutlineInputBorder(),
                     suffixIcon: _isCheckingEmail
                         ? const SizedBox(
@@ -225,14 +225,14 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                         : IconButton(
                             icon: const Icon(Icons.check_circle_outline),
                             onPressed: _isSubmitting ? null : _checkEmailAvailability,
-                            tooltip: l10n.checkEmailAvailability,
+                            tooltip: l10n?.checkEmailAvailability ?? 'Check email availability',
                           ),
                   ),
                   validator: (String? v) {
                     final String input = (v ?? '').trim();
-                    if (input.isEmpty) return l10n.required;
+                    if (input.isEmpty) return l10n?.required ?? 'Required';
                     final RegExp emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                    if (!emailRegex.hasMatch(input)) return l10n.invalidEmail;
+                    if (!emailRegex.hasMatch(input)) return l10n?.invalidEmail ?? 'Invalid email';
                     return null;
                   },
                 ),
@@ -241,13 +241,13 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: l10n.password,
+                    labelText: l10n?.password ?? 'Password',
                     border: const OutlineInputBorder(),
                   ),
                   validator: (String? v) {
                     final String input = (v ?? '');
-                    if (input.isEmpty) return l10n.required;
-                    if (input.length < 6) return l10n.passwordMinLength;
+                    if (input.isEmpty) return l10n?.required ?? 'Required';
+                    if (input.length < 6) return l10n?.passwordMinLength ?? 'Minimum 6 characters';
                     return null;
                   },
                 ),
@@ -255,11 +255,11 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 TextFormField(
                   controller: _firstNameController,
                   decoration: InputDecoration(
-                    labelText: l10n.firstName,
+                    labelText: l10n?.firstName ?? 'First Name',
                     border: const OutlineInputBorder(),
                   ),
                   validator: (String? v) {
-                    if ((v ?? '').trim().isEmpty) return l10n.required;
+                    if ((v ?? '').trim().isEmpty) return l10n?.required ?? 'Required';
                     return null;
                   },
                 ),
@@ -267,11 +267,11 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 TextFormField(
                   controller: _lastNameController,
                   decoration: InputDecoration(
-                    labelText: l10n.lastName,
+                    labelText: l10n?.lastName ?? 'Last Name',
                     border: const OutlineInputBorder(),
                   ),
                   validator: (String? v) {
-                    if ((v ?? '').trim().isEmpty) return l10n.required;
+                    if ((v ?? '').trim().isEmpty) return l10n?.required ?? 'Required';
                     return null;
                   },
                 ),
@@ -279,11 +279,11 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 TextFormField(
                   controller: _addressController,
                   decoration: InputDecoration(
-                    labelText: l10n.address,
+                    labelText: l10n?.address ?? 'Address',
                     border: const OutlineInputBorder(),
                   ),
                   validator: (String? v) {
-                    if ((v ?? '').trim().isEmpty) return l10n.required;
+                    if ((v ?? '').trim().isEmpty) return l10n?.required ?? 'Required';
                     return null;
                   },
                 ),
@@ -296,7 +296,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                     });
                   },
                   validator: (String? v) {
-                    if (v == null || v.isEmpty) return l10n.required;
+                    if (v == null || v.isEmpty) return l10n?.required ?? 'Required';
                     return null;
                   },
                 ),
@@ -305,33 +305,33 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                   controller: _ageController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: l10n.age,
+                    labelText: l10n?.age ?? 'Age',
                     border: const OutlineInputBorder(),
                   ),
                   validator: (String? v) {
                     final String val = (v ?? '').trim();
-                    if (val.isEmpty) return l10n.required;
+                    if (val.isEmpty) return l10n?.required ?? 'Required';
                     final int? n = int.tryParse(val);
-                    if (n == null) return l10n.mustBeNumber;
-                    if (n <= 0) return l10n.mustBeGreaterThanZero;
+                    if (n == null) return l10n?.mustBeNumber ?? 'Must be a number';
+                    if (n <= 0) return l10n?.mustBeGreaterThanZero ?? 'Must be greater than 0';
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _gender,
+                  initialValue: _gender,
                   items: <DropdownMenuItem<String>>[
-                    DropdownMenuItem(value: 'M', child: Text(l10n.male)),
-                    DropdownMenuItem(value: 'F', child: Text(l10n.female)),
+                    DropdownMenuItem(value: 'M', child: Text(l10n?.male ?? 'Male')),
+                    DropdownMenuItem(value: 'F', child: Text(l10n?.female ?? 'Female')),
                   ],
                   decoration: InputDecoration(
-                    labelText: l10n.gender,
+                    labelText: l10n?.gender ?? 'Gender',
                     border: const OutlineInputBorder(),
                   ),
                   onChanged: (String? v) => setState(() { _gender = v; }),
                 ),
                 const SizedBox(height: 12),
-                Text(l10n.roles, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(l10n?.roles ?? 'Roles', style: const TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                  Wrap(
                    spacing: 8,
@@ -340,13 +340,13 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                      String roleText = role;
                      switch (role) {
                        case 'admin':
-                         roleText = l10n.admin;
+                         roleText = l10n?.admin ?? 'Administrator';
                          break;
                        case 'vendedor':
-                         roleText = l10n.vendedor;
+                         roleText = l10n?.vendedor ?? 'Salesperson';
                          break;
                        case 'user':
-                         roleText = l10n.user;
+                         roleText = l10n?.user ?? 'User';
                          break;
                      }
                      return FilterChip(
@@ -372,7 +372,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                     icon: _isSubmitting
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.person_add_alt_1),
-                     label: Text(_isSubmitting ? l10n.registering : l10n.register),
+                     label: Text(_isSubmitting ? l10n?.registering ?? 'Registering...' : l10n?.register ?? 'Register'),
                   ),
                 ),
               ],

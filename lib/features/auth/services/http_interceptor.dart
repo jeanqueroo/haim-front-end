@@ -48,11 +48,11 @@ class HttpInterceptor {
           }
         } else {
           // La sesión ya fue manejada por SessionManager
-          throw e;
+          rethrow;
         }
       }
       
-      throw e;
+      rethrow;
     }
   }
 

@@ -24,7 +24,7 @@ class WelcomePage extends StatelessWidget {
                 ),
               );
             },
-            tooltip: l10n.settings,
+            tooltip: l10n?.settings,
           ),
         ],
       ),
@@ -70,7 +70,7 @@ class WelcomePage extends StatelessWidget {
                 
                 // Título de bienvenida
                 Text(
-                  l10n.welcome,
+                  l10n?.welcome ?? 'Welcome',
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -82,7 +82,7 @@ class WelcomePage extends StatelessWidget {
                 
                 // Subtítulo
                 Text(
-                  l10n.welcomeSubtitle,
+                  l10n?.welcomeSubtitle ?? 'Welcome to our application',
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.white70,
@@ -113,7 +113,7 @@ class WelcomePage extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      l10n.getStarted,
+                      l10n?.getStarted ?? 'Get Started',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -125,7 +125,7 @@ class WelcomePage extends StatelessWidget {
                 
                 // Texto adicional
                 Text(
-                  l10n.loginToAccess,
+                  l10n?.loginToAccess ?? 'Login to access',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.white60,

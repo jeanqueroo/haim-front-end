@@ -365,14 +365,14 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
           
           // Mostrar errores detallados
           if (errors.isNotEmpty) {
-            _showDetailedErrors(errors, AppLocalizations.of(context));
+            _showDetailedErrors(errors, AppLocalizations.of(context)!);
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('❌ No se pudo eliminar ningún usuario'),
               backgroundColor: Colors.red,
-              duration: const Duration(seconds: 4),
+              duration: Duration(seconds: 4),
             ),
           );
         }
@@ -397,7 +397,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.selectWorkersFirst),
+          content: Text(l10n?.selectWorkersFirst ?? 'Select workers first'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -412,30 +412,30 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(l10n.confirmSendWorkers),
+          title: Text(l10n?.confirmSendWorkers ?? 'Confirm Send Workers'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${l10n.selectedWorkersCount}: ${_selectedWorkers.length}'),
+              Text('${l10n?.selectedWorkersCount ?? 'Selected workers'}: ${_selectedWorkers.length}'),
               const SizedBox(height: 8),
-              Text(l10n.workersToSend),
+              Text(l10n?.workersToSend ?? 'Workers to send'),
               const SizedBox(height: 8),
               ...selectedWorkersList.take(3).map((worker) => 
                 Text('• ${worker.firstName} ${worker.lastName} (${worker.email})')
               ).toList(),
               if (selectedWorkersList.length > 3)
-                Text('... ${l10n.andMore.replaceAll('{count}', (selectedWorkersList.length - 3).toString())}'),
+                Text('... ${(l10n?.andMore ?? 'and {count} more').toString().replaceAll('{count}', (selectedWorkersList.length - 3).toString())}'),
             ],
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text(l10n.cancel),
+              child: Text(l10n?.cancel ?? 'Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text(l10n.send),
+              child: Text(l10n?.send ?? 'Send'),
             ),
           ],
         );
@@ -502,7 +502,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
         );
         
         // Mostrar errores detallados
-        _showDetailedErrors(result.errors, l10n);
+        _showDetailedErrors(result.errors, l10n!);
         
         // Limpiar selección de los usuarios exitosos
         _clearSelection();
@@ -569,7 +569,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
         if (selectedStore == null) {
     return Scaffold(
       appBar: AppBar(
-              title: Text('${l10n.workersForStore} - Sin Tienda'),
+              title: Text('${l10n?.workersForStore ?? 'Workers for Store'} - Sin Tienda'),
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
             body: Center(
@@ -611,7 +611,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${l10n.workersForStore}'),
+                Text('${l10n?.workersForStore ?? 'Workers for Store'}'),
                 Text(
                   selectedStore.name,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -626,7 +626,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
             IconButton(
               onPressed: _clearSelection,
               icon: const Icon(Icons.clear_all),
-              tooltip: l10n.clearSelection,
+              tooltip: l10n?.clearSelection ?? 'Clear Selection',
             ),
           ],
             IconButton(
@@ -637,12 +637,12 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
           IconButton(
             onPressed: _loadWorkers,
             icon: const Icon(Icons.refresh),
-            tooltip: l10n.refresh,
+            tooltip: l10n?.refresh ?? 'Refresh',
           ),
           PopupMenuButton<String>(
             onSelected: (String value) {
               if (value == 'filter') {
-                _showFilterDialog(l10n);
+                _showFilterDialog(l10n!);
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -652,7 +652,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                   children: [
                     const Icon(Icons.filter_list),
                     const SizedBox(width: 8),
-                    Text(l10n.filters),
+                    Text(l10n?.filters ?? 'Filters'),
                   ],
                 ),
               ),
@@ -697,7 +697,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${l10n.storeType}: ${_getStoreTypeName(selectedStore.type, l10n)}',
+                        '${l10n?.storeType ?? 'Store Type'}: ${_getStoreTypeName(selectedStore.type, l10n!)}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
                         ),
@@ -705,7 +705,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                       if (selectedStore.address.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
-                          '${l10n.address}: ${selectedStore.address}',
+                          '${l10n?.address ?? 'Address'}: ${selectedStore.address}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
                           ),
@@ -724,7 +724,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: l10n.searchWorkers,
+                hintText: l10n?.searchWorkers ?? 'Search workers...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -834,12 +834,12 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                       children: [
                         if (_selectedRole != null)
                           Chip(
-                            label: Text('${l10n.roles}: ${_getRoleName(_selectedRole!, l10n)}'),
+                            label: Text('${l10n?.roles ?? 'Roles'}: ${_getRoleName(_selectedRole!, l10n!)}'),
                             onDeleted: () => _onRoleFilterChanged(null),
                           ),
                         if (_searchQuery.isNotEmpty)
                           Chip(
-                            label: Text('${l10n.searchUsers}: "$_searchQuery"'),
+                            label: Text('${l10n?.searchUsers ?? 'Search Users'}: "$_searchQuery"'),
                             onDeleted: () {
                               _searchController.clear();
                               _onSearchChanged();
@@ -850,7 +850,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
                   ),
                   TextButton(
                     onPressed: _clearFilters,
-                    child: Text(l10n.clearFilters),
+                    child: Text(l10n?.clearFilters ?? 'Clear Filters'),
                   ),
                 ],
               ),
@@ -888,7 +888,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
 
           // Contenido principal
           Expanded(
-            child: _buildBody(l10n),
+            child: _buildBody(l10n!),
           ),
         ],
       ),
@@ -1096,7 +1096,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
             trailing: ElevatedButton.icon(
               onPressed: () => _addWorker(worker),
               icon: const Icon(Icons.add, size: 16),
-              label: Text('Add'),
+              label: const Text('Add'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -1123,7 +1123,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: _selectedRole,
+                initialValue: _selectedRole,
                 decoration: InputDecoration(
                   labelText: l10n.filterByRole,
                   border: const OutlineInputBorder(),
@@ -1149,7 +1149,7 @@ class _StoreWorkersPageState extends State<StoreWorkersPage> {
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel),
+              child: Text(l10n?.cancel ?? 'Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -1298,7 +1298,7 @@ class _RegisterUserDialogState extends State<_RegisterUserDialog> {
         borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
       ),
       filled: true,
-      fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
     );
   }
 
@@ -1628,7 +1628,7 @@ class _RegisterUserDialogState extends State<_RegisterUserDialog> {
                 
                 // Gender
                 DropdownButtonFormField<String>(
-                  value: _gender,
+                  initialValue: _gender,
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   decoration: _getInputDecoration('Gender'),
                   items: const [
@@ -1678,7 +1678,7 @@ class _RegisterUserDialogState extends State<_RegisterUserDialog> {
                           selected: isSelected,
                           selectedColor: Theme.of(context).colorScheme.primary,
                           checkmarkColor: Theme.of(context).colorScheme.onPrimary,
-                          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                           onSelected: (bool selected) {
                             setState(() {
                               if (selected) {
@@ -1710,7 +1710,7 @@ class _RegisterUserDialogState extends State<_RegisterUserDialog> {
           onPressed: _isSubmitting ? null : _handleSubmit,
           style: ElevatedButton.styleFrom(
             backgroundColor: _isSubmitting 
-                ? Theme.of(context).colorScheme.surfaceVariant
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : Theme.of(context).colorScheme.primary,
             foregroundColor: _isSubmitting
                 ? Theme.of(context).colorScheme.onSurfaceVariant
@@ -1732,7 +1732,7 @@ class _RegisterUserDialogState extends State<_RegisterUserDialog> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text('Saving...'),
+                    const Text('Saving...'),
                   ],
                 )
               : const Text('Register'),

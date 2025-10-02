@@ -158,7 +158,7 @@ class _RegisterProductPageState extends State<RegisterProductPage> {
 
                   // Campo: Categoría del producto
                   DropdownButtonFormField<String>(
-                    value: _selectedCategory,
+                    initialValue: _selectedCategory,
                     decoration: const InputDecoration(
                       labelText: 'Categoría del producto',
                       prefixIcon: Icon(Icons.category_outlined),

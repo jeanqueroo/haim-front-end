@@ -20,7 +20,7 @@ class DashboardPage extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.dashboard),
+        title: Text(l10n?.dashboard ?? 'Dashboard'),
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
@@ -31,7 +31,7 @@ class DashboardPage extends StatelessWidget {
                 ),
               );
             },
-            tooltip: l10n.profile,
+            tooltip: l10n?.profile ?? 'Profile',
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -42,7 +42,7 @@ class DashboardPage extends StatelessWidget {
                 ),
               );
             },
-            tooltip: l10n.settings,
+            tooltip: l10n?.settings ?? 'Settings',
           ),
         ],
       ),
@@ -73,7 +73,7 @@ class DashboardPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${l10n.hello} ${authProvider.userFullName ?? 'User'} 👋',
+                              '${l10n?.hello ?? 'Hello'} ${authProvider.userFullName ?? 'User'} 👋',
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -82,7 +82,7 @@ class DashboardPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              l10n.welcomeToDashboard,
+                              l10n?.welcomeToDashboard ?? 'Welcome to Dashboard',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.white70,
@@ -135,15 +135,15 @@ class DashboardPage extends StatelessWidget {
                         Color roleColor;
                         switch (role) {
                           case 'admin':
-                            roleText = l10n.admin;
+                            roleText = l10n?.admin ?? 'Administrator';
                             roleColor = Colors.red;
                             break;
                           case 'vendedor':
-                            roleText = l10n.vendedor;
+                            roleText = l10n?.vendedor ?? 'Salesperson';
                             roleColor = Colors.blue;
                             break;
                           case 'user':
-                            roleText = l10n.user;
+                            roleText = l10n?.user ?? 'User';
                             roleColor = Colors.green;
                             break;
                           default:
@@ -176,8 +176,8 @@ class DashboardPage extends StatelessWidget {
 
             // Sección de acciones rápidas
             Text(
-              l10n.quickActions,
-              style: TextStyle(
+              l10n?.quickActions ?? 'Quick Actions',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -198,8 +198,8 @@ class DashboardPage extends StatelessWidget {
                   _buildActionCard(
                     context,
                     icon: Icons.person_add_alt_1,
-                    title: l10n.registerUser,
-                    subtitle: l10n.createNewUser,
+                    title: l10n?.registerUser ?? 'Register User',
+                    subtitle: l10n?.createNewUser ?? 'Create new user',
                     color: Colors.blue,
                     onTap: () {
                       Navigator.of(context).push(
@@ -212,8 +212,8 @@ class DashboardPage extends StatelessWidget {
                   _buildActionCard(
                     context,
                     icon: Icons.people,
-                    title: l10n.viewUsers,
-                    subtitle: l10n.manageUsers,
+                    title: l10n?.viewUsers ?? 'View Users',
+                    subtitle: l10n?.manageUsers ?? 'Manage users',
                     color: Colors.indigo,
                     onTap: () {
                       Navigator.of(context).push(
@@ -227,8 +227,8 @@ class DashboardPage extends StatelessWidget {
                 _buildActionCard(
                   context,
                   icon: Icons.add_business,
-                  title: l10n.registerStore,
-                  subtitle: l10n.addNewStore,
+                  title: l10n?.registerStore ?? 'Register Store',
+                  subtitle: l10n?.addNewStore ?? 'Add new store',
                   color: Colors.green,
                   onTap: () {
                     Navigator.of(context).push(
@@ -241,8 +241,8 @@ class DashboardPage extends StatelessWidget {
                 _buildActionCard(
                   context,
                   icon: Icons.add_shopping_cart,
-                  title: l10n.registerProduct,
-                  subtitle: l10n.addProducts,
+                  title: l10n?.registerProduct ?? 'Register Product',
+                  subtitle: l10n?.addProducts ?? 'Add products',
                   color: Colors.orange,
                   onTap: () {
                     Navigator.of(context).push(
@@ -255,8 +255,8 @@ class DashboardPage extends StatelessWidget {
                 _buildActionCard(
                   context,
                   icon: Icons.store,
-                  title: l10n.viewStores,
-                  subtitle: l10n.manageStores,
+                  title: l10n?.viewStores ?? 'View Stores',
+                  subtitle: l10n?.manageStores ?? 'Manage stores',
                   color: Colors.purple,
                   onTap: () {
                     Navigator.of(context).push(
@@ -272,8 +272,8 @@ class DashboardPage extends StatelessWidget {
 
             // Sección de estadísticas
             Text(
-              l10n.statistics,
-              style: TextStyle(
+              l10n?.statistics ?? 'Statistics',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -287,7 +287,7 @@ class DashboardPage extends StatelessWidget {
                 if (authProvider.isAdmin) ...[
                   Expanded(
                     child: _buildStatCard(
-                      l10n.users,
+                      l10n?.users ?? 'Users',
                       '12',
                       Icons.people,
                       Colors.blue,
@@ -297,7 +297,7 @@ class DashboardPage extends StatelessWidget {
                 ],
                 Expanded(
                   child: _buildStatCard(
-                    l10n.stores,
+                    l10n?.stores ?? 'Stores',
                     '5',
                     Icons.store,
                     Colors.green,
@@ -310,7 +310,7 @@ class DashboardPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    l10n.products,
+                    l10n?.products ?? 'Products',
                     '48',
                     Icons.inventory,
                     Colors.orange,
@@ -319,7 +319,7 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildStatCard(
-                    l10n.sales,
+                    l10n?.sales ?? 'Sales',
                     '156',
                     Icons.trending_up,
                     Colors.purple,

@@ -16,7 +16,7 @@ class ProfilePage extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.profile),
+        title: Text(l10n?.profile ?? 'Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -27,7 +27,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               );
             },
-            tooltip: l10n.settings,
+            tooltip: l10n?.settings ?? 'Settings',
           ),
         ],
       ),
@@ -37,23 +37,23 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header con avatar y nombre
-            _buildProfileHeader(context, authProvider, l10n),
+            _buildProfileHeader(context, authProvider, l10n!),
             const SizedBox(height: 24),
             
             // Información personal
-            _buildPersonalInfoSection(context, authProvider, l10n),
+            _buildPersonalInfoSection(context, authProvider, l10n!),
             const SizedBox(height: 24),
             
             // Información de cuenta
-            _buildAccountInfoSection(context, authProvider, l10n),
+            _buildAccountInfoSection(context, authProvider, l10n!),
             const SizedBox(height: 24),
             
             // Configuración de idioma
-            _buildLanguageSection(context, languageService, l10n),
+            _buildLanguageSection(context, languageService, l10n!),
             const SizedBox(height: 24),
             
             // Botón de logout
-            _buildLogoutSection(context, authProvider, l10n),
+            _buildLogoutSection(context, authProvider, l10n!),
           ],
         ),
       ),
@@ -208,16 +208,16 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.accountInformation,
+              l10n?.accountInformation ?? 'Account Information',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
             _buildInfoRow(l10n.email, user['email'] ?? ''),
-            _buildInfoRow(l10n.userId, user['id']?.toString() ?? ''),
+            _buildInfoRow(l10n?.userId ?? 'User ID', user['id']?.toString() ?? ''),
             if (user['createdAt'] != null)
-              _buildInfoRow(l10n.registeredDate, _formatDate(user['createdAt'])),
+              _buildInfoRow(l10n?.registeredDate ?? 'Registered Date', _formatDate(user['createdAt'])),
           ],
         ),
       ),
@@ -276,7 +276,7 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              l10n.changeLanguageInSettings,
+              l10n?.changeLanguageInSettings ?? 'Change language in settings',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
@@ -296,7 +296,7 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.accountActions,
+              l10n?.accountActions ?? 'Account Actions',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.red[700],

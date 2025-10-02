@@ -10,7 +10,7 @@ class ProductsListPage extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.products),
+        title: Text(l10n?.products ?? 'Products'),
       ),
       body: Center(
         child: Column(
@@ -23,7 +23,7 @@ class ProductsListPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              l10n.comingSoon,
+              l10n?.comingSoon ?? 'Coming Soon',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: Colors.grey[600],
               ),

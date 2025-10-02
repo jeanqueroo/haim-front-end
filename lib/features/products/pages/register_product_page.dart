@@ -10,7 +10,7 @@ class RegisterProductPage extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.registerProduct),
+        title: Text(l10n?.registerProduct ?? 'Register Product'),
       ),
       body: Center(
         child: Column(
@@ -23,14 +23,14 @@ class RegisterProductPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              l10n.comingSoon,
+              l10n?.comingSoon ?? 'Coming Soon',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: Colors.grey[600],
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.registerProductDescription,
+              l10n?.registerProductDescription ?? 'Product registration functionality will be available soon',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[500],
               ),

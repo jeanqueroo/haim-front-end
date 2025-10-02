@@ -33,7 +33,7 @@ class _EditTablePageState extends State<EditTablePage> {
 
   // Lista de estados de mesa con localización
   List<Map<String, String>> _getTableStatuses(AppLocalizations l10n) {
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     return [
       {'key': 'available', 'value': isSpanish ? 'Disponible' : 'Available'},
@@ -45,7 +45,7 @@ class _EditTablePageState extends State<EditTablePage> {
 
   // Obtener etiquetas localizadas
   Map<String, String> _getLocalizedLabels(AppLocalizations l10n) {
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     return {
       'tableNumber': isSpanish ? 'Número de mesa' : 'Table Number',
@@ -208,16 +208,16 @@ class _EditTablePageState extends State<EditTablePage> {
         String selectedStatusName;
         switch (_selectedStatus) {
           case 'available':
-            selectedStatusName = l10n.locale.languageCode == 'es' ? 'Disponible' : 'Available';
+            selectedStatusName = l10n?.localeName?.startsWith('es') ?? false ? 'Disponible' : 'Available';
             break;
           case 'occupied':
-            selectedStatusName = l10n.locale.languageCode == 'es' ? 'Ocupada' : 'Occupied';
+            selectedStatusName = l10n?.localeName?.startsWith('es') ?? false ? 'Ocupada' : 'Occupied';
             break;
           case 'reserved':
-            selectedStatusName = l10n.locale.languageCode == 'es' ? 'Reservada' : 'Reserved';
+            selectedStatusName = l10n?.localeName?.startsWith('es') ?? false ? 'Reservada' : 'Reserved';
             break;
           case 'maintenance':
-            selectedStatusName = l10n.locale.languageCode == 'es' ? 'Mantenimiento' : 'Maintenance';
+            selectedStatusName = l10n?.localeName?.startsWith('es') ?? false ? 'Mantenimiento' : 'Maintenance';
             break;
           default:
             selectedStatusName = _selectedStatus ?? 'Estado no seleccionado';
@@ -300,10 +300,10 @@ class _EditTablePageState extends State<EditTablePage> {
     
     // Mostrar mensaje de confirmación
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Formulario restaurado a los valores originales'),
         backgroundColor: Colors.blue,
-        duration: const Duration(seconds: 2),
+        duration: Duration(seconds: 2),
       ),
     );
   }
@@ -311,8 +311,8 @@ class _EditTablePageState extends State<EditTablePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tableStatuses = _getTableStatuses(l10n);
-    final labels = _getLocalizedLabels(l10n);
+    final tableStatuses = _getTableStatuses(l10n!);
+    final labels = _getLocalizedLabels(l10n!);
     
     return Scaffold(
       appBar: AppBar(
@@ -411,7 +411,7 @@ class _EditTablePageState extends State<EditTablePage> {
 
                   // Campo: Estado de la mesa (Dropdown)
                   DropdownButtonFormField<String>(
-                    value: _selectedStatus != null && tableStatuses.any((status) => status['key'] == _selectedStatus) 
+                    initialValue: _selectedStatus != null && tableStatuses.any((status) => status['key'] == _selectedStatus) 
                         ? _selectedStatus 
                         : null,
                     decoration: InputDecoration(

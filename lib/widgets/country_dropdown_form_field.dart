@@ -30,9 +30,9 @@ class CountryDropdownFormField extends StatelessWidget {
     final countryKeys = countries ?? _defaultCountryKeys;
 
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: decoration ?? InputDecoration(
-        labelText: labelText ?? l10n.country,
+        labelText: labelText ?? l10n?.country ?? 'Country',
         border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.flag),
       ),
@@ -40,10 +40,10 @@ class CountryDropdownFormField extends StatelessWidget {
         String translatedCountry;
         switch (countryKey) {
           case 'spain':
-            translatedCountry = l10n.spain;
+            translatedCountry = l10n?.spain ?? 'Spain';
             break;
           case 'unitedStates':
-            translatedCountry = l10n.unitedStates;
+            translatedCountry = l10n?.unitedStates ?? 'United States';
             break;
           default:
             translatedCountry = countryKey; // Fallback to original value

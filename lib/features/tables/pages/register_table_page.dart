@@ -81,6 +81,7 @@ class _RegisterTablePageState extends State<RegisterTablePage> {
     });
   }
 
+
   // Cargar mesas existentes de la tienda
   Future<void> _loadExistingTables(String storeId) async {
     setState(() {

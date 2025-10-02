@@ -7,6 +7,7 @@ import 'features/auth/services/navigation_guard.dart';
 import 'features/settings/pages/settings_page.dart';
 import 'features/users/pages/register_user_page.dart';
 import 'features/users/pages/users_list_page.dart';
+import 'features/tables/pages/tables_list_page.dart';
 import 'features/tables/pages/register_table_page.dart';
 import 'dashboard_page.dart';
 import 'features/auth/pages/profile_page.dart';
@@ -43,6 +44,7 @@ class _HomeMenuState extends State<HomeMenu> {
     _SelectStorePage(),       // 4 - Select Store
     _StoresListPage(),        // 5 - Stores List
     _RegisterTablePage(),     // 6 - Register Table
+    _TablesListPage(),        // 7 - Tables List
     RegisterUserPage(),       // 8 - Register User
     UsersListPage(),          // 9 - Users List
     _SelectStoreForUsersPage(), // 10 - Select Store for Users
@@ -50,7 +52,7 @@ class _HomeMenuState extends State<HomeMenu> {
 
   void _onNavTap(int index) {
     // Verificar si el usuario intenta acceder a páginas de usuario sin ser admin
-    if ((index == 7 || index == 8 || index == 9) && !context.read<AuthProvider>().isAdmin) {
+    if ((index == 8 || index == 9 || index == 10) && !context.read<AuthProvider>().isAdmin) {
       // Si no es admin, no permitir acceso a páginas de usuario
       return;
     }
@@ -69,16 +71,16 @@ class _HomeMenuState extends State<HomeMenu> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(l10n.logout),
-          content: Text(l10n.logoutConfirmation),
+          title: Text(l10n?.logout ?? 'Logout'),
+          content: Text(l10n?.logoutConfirmation ?? 'Are you sure you want to logout?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text(l10n.cancel),
+              child: Text(l10n?.cancel ?? 'Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text(l10n.logout),
+              child: Text(l10n?.logout ?? 'Logout'),
             ),
           ],
         );
@@ -102,7 +104,7 @@ class _HomeMenuState extends State<HomeMenu> {
       // Mostrar mensaje de confirmación
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.sessionClosed),
+          content: Text(l10n?.sessionClosed ?? 'Session closed'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -118,18 +120,18 @@ class _HomeMenuState extends State<HomeMenu> {
       appBar: AppBar(
         title: Text(
           switch (_selectedIndex) {
-            0 => l10n.home,
-            1 => l10n.profile,
-            2 => l10n.settings,
-            3 => l10n.registerStore,
-            4 => l10n.selectStore,
-            5 => l10n.stores,
+            0 => l10n?.home ?? 'Home',
+            1 => l10n?.profile ?? 'Profile',
+            2 => l10n?.settings ?? 'Settings',
+            3 => l10n?.registerStore ?? 'Register Store',
+            4 => l10n?.selectStore ?? 'Select Store',
+            5 => l10n?.stores ?? 'Stores',
             6 => 'Registrar Mesa',
             7 => 'Mesas',
-            8 => l10n.registerUser,
-            9 => l10n.users,
-            10 => l10n.selectStoreForUsers,
-            _ => l10n.home,
+            8 => l10n?.registerUser ?? 'Register User',
+            9 => l10n?.users ?? 'Users',
+            10 => l10n?.selectStoreForUsers ?? 'Select Store for Users',
+            _ => l10n?.home ?? 'Home',
           },
         ),
         actions: [
@@ -157,7 +159,7 @@ class _HomeMenuState extends State<HomeMenu> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text(authProvider.userFullName ?? l10n.user),
+              accountName: Text(authProvider.userFullName ?? l10n?.user ?? 'User'),
               accountEmail: Text(authProvider.userEmail ?? ''),
               currentAccountPicture: CircleAvatar(
                 child: Text(
@@ -171,7 +173,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.dashboard_outlined),
-              title: Text(l10n.home),
+              title: Text(l10n?.home ?? 'Home'),
               selected: _selectedIndex == 0,
               onTap: () {
                 Navigator.pop(context);
@@ -180,7 +182,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.person_outline),
-              title: Text(l10n.profile),
+              title: Text(l10n?.profile ?? 'Profile'),
               selected: _selectedIndex == 1,
               onTap: () {
                 Navigator.pop(context);
@@ -189,7 +191,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
-              title: Text(l10n.settings),
+              title: Text(l10n?.settings ?? 'Settings'),
               selected: _selectedIndex == 2,
               onTap: () {
                 Navigator.pop(context);
@@ -200,7 +202,7 @@ class _HomeMenuState extends State<HomeMenu> {
             if (authProvider.isAdmin)
               ExpansionTile(
                 leading: const Icon(Icons.people_outline),
-                title: Text(l10n.users),
+                title: Text(l10n?.users ?? 'Users'),
                 initiallyExpanded: _isUserMenuExpanded,
                 onExpansionChanged: (bool expanded) {
                   setState(() {
@@ -210,7 +212,7 @@ class _HomeMenuState extends State<HomeMenu> {
                 children: <Widget>[
                   ListTile(
                     leading: const Icon(Icons.person_add),
-                    title: Text(l10n.registerUser),
+                    title: Text(l10n?.registerUser ?? 'Register User'),
                     selected: _selectedIndex == 8,
                     onTap: () {
                       Navigator.pop(context);
@@ -219,7 +221,7 @@ class _HomeMenuState extends State<HomeMenu> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.list),
-                    title: Text(l10n.users),
+                    title: Text(l10n?.users ?? 'Users'),
                     selected: _selectedIndex == 9,
                     onTap: () {
                       Navigator.pop(context);
@@ -231,7 +233,7 @@ class _HomeMenuState extends State<HomeMenu> {
             // Menú de Tiendas expandible
             ExpansionTile(
               leading: const Icon(Icons.store_outlined),
-              title: Text(l10n.stores),
+              title: Text(l10n?.stores ?? 'Stores'),
               initiallyExpanded: _isStoreMenuExpanded,
               onExpansionChanged: (bool expanded) {
                 setState(() {
@@ -241,7 +243,7 @@ class _HomeMenuState extends State<HomeMenu> {
               children: <Widget>[
                 ListTile(
                   leading: const Icon(Icons.add_business),
-                  title: Text(l10n.registerStore),
+                  title: Text(l10n?.registerStore ?? 'Register Store'),
                   selected: _selectedIndex == 3,
                   onTap: () {
                     Navigator.pop(context);
@@ -250,7 +252,7 @@ class _HomeMenuState extends State<HomeMenu> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.list),
-                  title: Text(l10n.stores),
+                  title: Text(l10n?.stores ?? 'Stores'),
                   selected: _selectedIndex == 5,
                   onTap: () {
                     Navigator.pop(context);
@@ -259,7 +261,7 @@ class _HomeMenuState extends State<HomeMenu> {
                 ),
                   ListTile(
                     leading: const Icon(Icons.people_alt_outlined),
-                    title: Text(l10n.selectStoreForUsers),
+                    title: Text(l10n?.selectStoreForUsers ?? 'Select Store for Users'),
                     selected: _selectedIndex == 10,
                     onTap: () {
                       Navigator.pop(context);
@@ -271,7 +273,7 @@ class _HomeMenuState extends State<HomeMenu> {
             // Menú de Mesas expandible
             ExpansionTile(
               leading: const Icon(Icons.table_restaurant_outlined),
-              title: Text('Mesas'),
+              title: const Text('Mesas'),
               initiallyExpanded: _isTableMenuExpanded,
               onExpansionChanged: (bool expanded) {
                 setState(() {
@@ -281,7 +283,7 @@ class _HomeMenuState extends State<HomeMenu> {
               children: <Widget>[
                 ListTile(
                   leading: const Icon(Icons.add),
-                  title: Text('Registrar Mesa'),
+                  title: const Text('Registrar Mesa'),
                   selected: _selectedIndex == 6,
                   onTap: () {
                     Navigator.pop(context);
@@ -290,7 +292,7 @@ class _HomeMenuState extends State<HomeMenu> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.list),
-                  title: Text('Lista de Mesas'),
+                  title: const Text('Lista de Mesas'),
                   selected: _selectedIndex == 7,
                   onTap: () {
                     Navigator.pop(context);
@@ -301,7 +303,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ),
             ListTile(
               leading: const Icon(Icons.add_shopping_cart),
-              title: Text(l10n.registerProduct),
+              title: Text(l10n?.registerProduct ?? 'Register Product'),
               selected: _selectedIndex == 4,
               onTap: () {
                 Navigator.pop(context);
@@ -311,7 +313,7 @@ class _HomeMenuState extends State<HomeMenu> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: Text(l10n.logout),
+              title: Text(l10n?.logout ?? 'Logout'),
               onTap: _handleLogout,
             ),
           ],
@@ -328,11 +330,11 @@ class _HomeMenuState extends State<HomeMenu> {
           }
         },
         destinations: <NavigationDestination>[
-          NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: l10n.home),
-          NavigationDestination(icon: const Icon(Icons.person_outline), label: l10n.profile),
-          NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n.settings),
-          NavigationDestination(icon: const Icon(Icons.store_outlined), label: l10n.stores),
-          NavigationDestination(icon: const Icon(Icons.table_restaurant_outlined), label: 'Mesas'),
+          NavigationDestination(icon: const Icon(Icons.dashboard_outlined), label: l10n?.home ?? 'Home'),
+          NavigationDestination(icon: const Icon(Icons.person_outline), label: l10n?.profile ?? 'Profile'),
+          NavigationDestination(icon: const Icon(Icons.settings_outlined), label: l10n?.settings ?? 'Settings'),
+          NavigationDestination(icon: const Icon(Icons.store_outlined), label: l10n?.stores ?? 'Stores'),
+          const NavigationDestination(icon: Icon(Icons.table_restaurant_outlined), label: 'Mesas'),
         ],
       ),
     );
@@ -364,11 +366,11 @@ class _SettingsPage extends StatelessWidget {
           value: Theme.of(context).brightness == Brightness.dark,
           onChanged: (_) {},
           secondary: const Icon(Icons.dark_mode_outlined),
-          title: Text(l10n.darkMode),
+          title: Text(l10n?.darkMode ?? 'Dark Mode'),
         ),
         ListTile(
           leading: const Icon(Icons.info_outline),
-          title: Text(l10n.version),
+          title: Text(l10n?.version ?? 'Version'),
           subtitle: const Text('1.0.0'),
         ),
       ],
@@ -413,6 +415,14 @@ class _RegisterTablePage extends StatelessWidget {
   }
 }
 
+class _TablesListPage extends StatelessWidget {
+  const _TablesListPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const TablesListPage();
+  }
+}
 
 class _SelectStoreForUsersPage extends StatelessWidget {
   const _SelectStoreForUsersPage();

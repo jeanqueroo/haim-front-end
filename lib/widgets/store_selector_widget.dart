@@ -163,7 +163,7 @@ class StoreAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         children: [
           Text(title),
           const SizedBox(height: 2),
-          StoreSelectorWidget(
+          const StoreSelectorWidget(
             showLabel: false,
             compact: true,
           ),

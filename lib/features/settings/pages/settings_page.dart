@@ -15,7 +15,7 @@ class SettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.settings),
+        title: Text(l10n?.settings ?? 'Settings'),
         centerTitle: true,
       ),
       body: ListView(
@@ -33,7 +33,7 @@ class SettingsPage extends StatelessWidget {
                       const Icon(Icons.language, color: Colors.blue),
                       const SizedBox(width: 12),
                       Text(
-                        l10n.language,
+                        l10n?.language ?? 'Language',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -42,7 +42,7 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    l10n.selectLanguageDescription,
+                    l10n?.selectLanguageDescription ?? 'Select your preferred language',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -284,7 +284,7 @@ class SettingsPage extends StatelessWidget {
                       const Icon(Icons.info_outline, color: Colors.green),
                       const SizedBox(width: 12),
                       Text(
-                        l10n.information,
+                        l10n?.information ?? 'Information',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -293,7 +293,7 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    l10n.currentLanguage,
+                    l10n?.currentLanguage ?? 'Current Language',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -328,7 +328,7 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    l10n.languageChangeNote,
+                    l10n?.languageChangeNote ?? 'Language changes will be applied after restarting the app',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey[600],
                       fontStyle: FontStyle.italic,

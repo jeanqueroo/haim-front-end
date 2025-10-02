@@ -76,7 +76,7 @@ class _StoresListPageState extends State<StoresListPage> {
   }
 
   List<Map<String, String>> _getStoreTypeOptions(AppLocalizations l10n) {
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     return [
       {'key': 'truck', 'value': isSpanish ? 'Camión' : 'Truck'},
@@ -124,10 +124,10 @@ class _StoresListPageState extends State<StoresListPage> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Tienda eliminada exitosamente'),
               backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
+              duration: Duration(seconds: 3),
             ),
           );
         }
@@ -216,7 +216,7 @@ class _StoresListPageState extends State<StoresListPage> {
   }
 
   String _getStoreTypeName(String type, AppLocalizations l10n) {
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     switch (type.toLowerCase()) {
       case 'truck':
@@ -251,7 +251,7 @@ class _StoresListPageState extends State<StoresListPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -297,7 +297,7 @@ class _StoresListPageState extends State<StoresListPage> {
             ),
           ),
           // Lista de tiendas
-          Expanded(child: _buildBody(l10n, isSpanish)),
+          Expanded(child: _buildBody(l10n!, isSpanish)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -307,8 +307,8 @@ class _StoresListPageState extends State<StoresListPage> {
             _loadStores();
           });
         },
-        child: const Icon(Icons.add),
         tooltip: isSpanish ? 'Agregar Tienda' : 'Add Store',
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -547,7 +547,7 @@ class _StoresListPageState extends State<StoresListPage> {
 
   void _showFilterDialog() {
     final l10n = AppLocalizations.of(context);
-    final isSpanish = l10n.locale.languageCode == 'es';
+    final isSpanish = l10n?.localeName?.startsWith('es') ?? false;
     
     showDialog(
       context: context,
@@ -561,7 +561,7 @@ class _StoresListPageState extends State<StoresListPage> {
                 children: [
                   // Filtro por tipo de tienda
                   DropdownButtonFormField<String>(
-                    value: _selectedStoreType,
+                    initialValue: _selectedStoreType,
                     decoration: InputDecoration(
                       labelText: isSpanish ? 'Tipo de tienda' : 'Store Type',
                       border: const OutlineInputBorder(),
@@ -571,7 +571,7 @@ class _StoresListPageState extends State<StoresListPage> {
                         value: null,
                         child: Text(isSpanish ? 'Todos los tipos' : 'All types'),
                       ),
-                      ..._getStoreTypeOptions(l10n).map((type) {
+                      ..._getStoreTypeOptions(l10n!).map((type) {
                         return DropdownMenuItem<String>(
                           value: type['key'],
                           child: Text(type['value']!),
@@ -588,7 +588,7 @@ class _StoresListPageState extends State<StoresListPage> {
                   
                   // Filtro por país
                   DropdownButtonFormField<String>(
-                    value: _selectedCountry,
+                    initialValue: _selectedCountry,
                     decoration: InputDecoration(
                       labelText: isSpanish ? 'País' : 'Country',
                       border: const OutlineInputBorder(),
@@ -598,7 +598,7 @@ class _StoresListPageState extends State<StoresListPage> {
                         value: null,
                         child: Text(isSpanish ? 'Todos los países' : 'All countries'),
                       ),
-                      ..._getCountryOptions(l10n).map((country) {
+                      ..._getCountryOptions(l10n!).map((country) {
                         return DropdownMenuItem<String>(
                           value: country['key'],
                           child: Text(country['value']!),
